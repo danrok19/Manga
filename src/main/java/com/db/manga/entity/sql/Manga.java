@@ -38,6 +38,12 @@ public class Manga {
     )
     private List<Genre> genres;
 
+    @OneToMany(mappedBy = "manga")
+    private List<MangaRating> mangaRatings;
+
+    @OneToMany(mappedBy = "manga")
+    private List<ChapterRating> chapterRatings;
+
     public Manga() {}
 
     public Manga(String title, String genre, String description) {
