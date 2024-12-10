@@ -34,6 +34,12 @@ public class User {
     )
     private List<Role> roles;
 
+    @OneToMany(mappedBy = "autor", cascade = CascadeType.ALL)
+    private List<Manga> mangas;
+
+    @OneToMany(mappedBy = "user")
+    private List<Subscription> subscriptions;
+
     public User() {}
 
     public User(String username, String password, String email, String signupDate) {
@@ -48,6 +54,20 @@ public class User {
             roles = new ArrayList<>();
         }
         roles.add(role);
+    }
+
+    public void add(Manga manga) {
+        if(mangas == null) {
+            mangas = new ArrayList<>();
+        }
+        mangas.add(manga);
+    }
+
+    public void add(Subscription subscription) {
+        if(subscriptions == null) {
+            subscriptions = new ArrayList<>();
+        }
+        subscriptions.add(subscription);
     }
 
     public int getId() {
