@@ -10,7 +10,7 @@ public class Subscription {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")
-    private int id;
+    private long id;
 
     @Column(name = "subscription_date")
     private String subscriptionDate;
@@ -29,11 +29,11 @@ public class Subscription {
         this.subscriptionDate = subscriptionDate;
     }
 
-    public int getId() {
+    public long getId() {
         return id;
     }
 
-    public void setId(int id) {
+    public void setId(long id) {
         this.id = id;
     }
 

@@ -12,7 +12,7 @@ public class Manga {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")
-    private int id;
+    private long id;
 
     @Column(name = "title")
     private String title;
@@ -72,11 +72,11 @@ public class Manga {
         genres.add(genre);
     }
 
-    public int getId() {
+    public long getId() {
         return id;
     }
 
-    public void setId(int id) {
+    public void setId(long id) {
         this.id = id;
     }
 

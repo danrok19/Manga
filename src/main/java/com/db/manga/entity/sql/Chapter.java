@@ -10,7 +10,7 @@ public class Chapter {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")
-    private int id;
+    private long id;
 
     @Column(name = "title")
     private String title;
@@ -37,11 +37,11 @@ public class Chapter {
         this.chapterContent = chapterContent;
     }
 
-    public int getId() {
+    public long getId() {
         return id;
     }
 
-    public void setId(int id) {
+    public void setId(long id) {
         this.id = id;
     }
 

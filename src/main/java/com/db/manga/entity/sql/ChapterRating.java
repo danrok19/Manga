@@ -9,7 +9,7 @@ public class ChapterRating {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")
-    private int id;
+    private long id;
 
     @Column(name = "rating")
     private int rating;
@@ -17,15 +17,15 @@ public class ChapterRating {
     @Column(name = "date")
     private String date;
 
-    @ManyToOne(cascade = {CascadeType.PERSIST, CascadeType.MERGE, CascadeType.REFRESH, CascadeType.DETACH})
+    @ManyToOne(optional = false)
     @JoinColumn(name = "user_id")
     private User user;
 
-    @ManyToOne(cascade = {CascadeType.PERSIST, CascadeType.MERGE, CascadeType.REFRESH, CascadeType.DETACH})
+    @ManyToOne(optional = false)
     @JoinColumn(name = "manga_id")
     private Manga manga;
 
-    @ManyToOne(cascade = {CascadeType.PERSIST, CascadeType.MERGE, CascadeType.REFRESH, CascadeType.DETACH})
+    @ManyToOne(optional = false)
     @JoinColumn(name = "chapter_id")
     private Chapter chapter;
 
@@ -36,11 +36,11 @@ public class ChapterRating {
         this.date = date;
     }
 
-    public int getId() {
+    public long getId() {
         return id;
     }
 
-    public void setId(int id) {
+    public void setId(long id) {
         this.id = id;
     }
 

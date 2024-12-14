@@ -12,7 +12,7 @@ public class User {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")
-    private int id;
+    private long id;
 
     @Column(name = "username")
     private String username;
@@ -26,7 +26,7 @@ public class User {
     @Column(name = "signup_date")
     private String signupDate;
 
-    @ManyToMany(fetch = FetchType.EAGER, cascade = {CascadeType.PERSIST, CascadeType.MERGE, CascadeType.REFRESH, CascadeType.DETACH})
+    @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(
         name = "user_role",
             joinColumns = @JoinColumn(name = "user_id"),
@@ -76,11 +76,11 @@ public class User {
         subscriptions.add(subscription);
     }
 
-    public int getId() {
+    public long getId() {
         return id;
     }
 
-    public void setId(int id) {
+    public void setId(long id) {
         this.id = id;
     }
 
