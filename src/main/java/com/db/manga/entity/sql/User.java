@@ -6,7 +6,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Entity
-@Table(name="user")
+@Table(name = "\"user\"")
 public class User {
 
     @Id
@@ -34,10 +34,10 @@ public class User {
     )
     private List<Role> roles;
 
-    @OneToMany(mappedBy = "autor", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "autor", fetch = FetchType.EAGER, cascade = CascadeType.ALL)
     private List<Manga> mangas;
 
-    @OneToMany(mappedBy = "user")
+    @OneToMany(mappedBy = "user", fetch = FetchType.EAGER)
     private List<Subscription> subscriptions;
 
     @OneToMany(mappedBy = "user")
@@ -114,6 +114,30 @@ public class User {
 
     public void setSignupDate(String signupDate) {
         this.signupDate = signupDate;
+    }
+
+    public List<Role> getRoles() {
+        return roles;
+    }
+
+    public void setRoles(List<Role> roles) {
+        this.roles = roles;
+    }
+
+    public List<Manga> getMangas() {
+        return mangas;
+    }
+
+    public void setMangas(List<Manga> mangas) {
+        this.mangas = mangas;
+    }
+
+    public List<Subscription> getSubscriptions() {
+        return subscriptions;
+    }
+
+    public void setSubscriptions(List<Subscription> subscriptions) {
+        this.subscriptions = subscriptions;
     }
 
     @Override

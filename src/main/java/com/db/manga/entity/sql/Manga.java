@@ -23,14 +23,14 @@ public class Manga {
     @OneToMany(mappedBy = "manga", cascade = CascadeType.ALL)
     private List<Chapter> chapters;
 
-    @ManyToOne(cascade = {CascadeType.PERSIST, CascadeType.MERGE, CascadeType.REFRESH, CascadeType.DETACH})
+    @ManyToOne(optional = false)
     @JoinColumn(name = "author_id")
     private User autor;
 
     @OneToMany(mappedBy = "manga", cascade = CascadeType.ALL)
     private List<Subscription> subscriptions;
 
-    @ManyToMany(cascade = {CascadeType.PERSIST, CascadeType.MERGE, CascadeType.REFRESH, CascadeType.DETACH})
+    @ManyToMany()
     @JoinTable(
             name = "manga_genre",
             joinColumns = @JoinColumn(name = "manga_id"),
@@ -46,7 +46,7 @@ public class Manga {
 
     public Manga() {}
 
-    public Manga(String title, String genre, String description) {
+    public Manga(String title, String description) {
         this.title = title;
         this.description = description;
     }
@@ -119,6 +119,14 @@ public class Manga {
 
     public void setSubscriptions(List<Subscription> subscriptions) {
         this.subscriptions = subscriptions;
+    }
+
+    public List<Genre> getGenres() {
+        return genres;
+    }
+
+    public void setGenres(List<Genre> genres) {
+        this.genres = genres;
     }
 
     @Override

@@ -24,7 +24,7 @@ public class Chapter {
     @Column(name = "chapter_content")
     private String chapterContent;
 
-    @ManyToOne(fetch = FetchType.LAZY, cascade = {CascadeType.PERSIST, CascadeType.MERGE, CascadeType.REFRESH, CascadeType.DETACH})
+    @ManyToOne(optional = false)
     @JoinColumn(name = "manga_id")
     private Manga manga;
 
