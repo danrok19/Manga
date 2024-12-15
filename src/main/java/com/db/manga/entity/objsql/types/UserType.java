@@ -1,16 +1,33 @@
 package com.db.manga.entity.objsql.types;
 
-import java.io.Serializable;
+import jakarta.persistence.Column;
+import jakarta.persistence.Embeddable;
 
-public class UserType implements Serializable {
 
+@Embeddable
+public class UserType {
+
+    @Column(name = "username")
     private String username;
 
+    @Column(name = "password")
     private String password;
 
+    @Column(name = "email")
     private String email;
 
+    @Column(name = "signup_date")
     private String signupDate;
+
+    public UserType() {
+    }
+
+    public UserType(String username, String password, String email, String signupDate) {
+        this.username = username;
+        this.password = password;
+        this.email = email;
+        this.signupDate = signupDate;
+    }
 
 
     public String getUsername() {
@@ -43,5 +60,15 @@ public class UserType implements Serializable {
 
     public void setSignupDate(String signupDate) {
         this.signupDate = signupDate;
+    }
+
+    @Override
+    public String toString() {
+        return "UserType{" +
+                "username='" + username + '\'' +
+                ", password='" + password + '\'' +
+                ", email='" + email + '\'' +
+                ", signupDate='" + signupDate + '\'' +
+                '}';
     }
 }

@@ -3,6 +3,7 @@ package com.db.manga.entity.objsql.model;
 import com.db.manga.entity.objsql.types.UserType;
 import jakarta.persistence.*;
 
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -15,8 +16,7 @@ public class User {
     @Column(name = "id")
     private long id;
 
-    @Embedded
-    private UserType userType;
+    private com.db.manga.entity.objsql.types.UserType userData; // Zmieniamy na UserType jako embedded
 
 
     @ManyToMany(fetch = FetchType.EAGER)
@@ -43,8 +43,8 @@ public class User {
 
     public User() {}
 
-    public User(UserType userType) {
-        this.userType = userType;
+    public User(UserType userData) {
+        this.userData = userData;
     }
 
 
@@ -77,12 +77,12 @@ public class User {
         this.id = id;
     }
 
-    public UserType getUserType() {
-        return userType;
+    public UserType getUserData() {
+        return userData;
     }
 
-    public void setUserType(UserType userType) {
-        this.userType = userType;
+    public void setUserData(UserType userData) {
+        this.userData = userData;
     }
 
     public List<Role> getRoles() {
@@ -130,7 +130,7 @@ public class User {
     public String toString() {
         return "User{" +
                 "id=" + id +
-                ", userType=" + userType +
+                ", userType=" + userData +
                 '}';
     }
 }

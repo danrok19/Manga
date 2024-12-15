@@ -1,7 +1,6 @@
 package com.db.manga.entity.objsql.model;
 
 import com.db.manga.entity.objsql.types.ChapterType;
-import com.db.manga.entity.sql.Manga;
 import jakarta.persistence.*;
 
 @Entity
