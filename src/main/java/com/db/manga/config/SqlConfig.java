@@ -27,7 +27,7 @@ public class SqlConfig {
 
         dataSource.setJdbcUrl("jdbc:postgresql://localhost:5432/dbmanga");
         dataSource.setUsername("postgres");
-        dataSource.setPassword("Zoltanlubi1$");
+        dataSource.setPassword("...");
 
         return dataSource;
     }
