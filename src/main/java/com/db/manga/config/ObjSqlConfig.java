@@ -16,9 +16,9 @@ import org.springframework.transaction.annotation.EnableTransactionManagement;
 import javax.sql.DataSource;
 
 @Configuration
-@EnableJpaRepositories(basePackages = "com.db.manga.dao.objsql")
+@EnableJpaRepositories(basePackages = "com.db.manga.dao.sql")
 @EnableTransactionManagement
-@EntityScan(basePackages = "com.db.manga.entity.objsql.model")
+@EntityScan(basePackages = "com.db.manga.entity.sql")
 public class ObjSqlConfig {
 
     @Bean
@@ -36,7 +36,7 @@ public class ObjSqlConfig {
     public LocalContainerEntityManagerFactoryBean entityManagerFactory(EntityManagerFactoryBuilder builder, DataSource dataSource){
         return builder
                 .dataSource(dataSource)
-                .packages("com.db.manga.entity.objsql.model")
+                .packages("com.db.manga.entity.sql")
                 .persistenceUnit("manga")
                 .build();
     }
