@@ -27,7 +27,7 @@ public class ObjSqlConfig {
 
         dataSource.setJdbcUrl("jdbc:postgresql://localhost:5432/dbmangav2");
         dataSource.setUsername("postgres");
-        dataSource.setPassword("Zoltanlubi1$");
+        dataSource.setPassword("...");
 
         return dataSource;
     }
