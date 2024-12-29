@@ -1,7 +1,6 @@
 package com.db.manga.service;
 
-import com.db.manga.entity.sql.Role;
-import com.db.manga.entity.sql.User;
+import com.db.manga.entity.sql.*;
 
 import java.util.List;
 
@@ -19,4 +18,23 @@ public interface ObjSqlService {
 
     List<Role> findAllRoles();
 
+    void createManga(String title, String description, long authorId, List<Genre> genres);
+
+    Manga getMangaById(Long mangaId);
+
+    void createGenre(String name);
+
+    List<Genre> findAllGenres();
+
+    Genre findGenreById(long genreId);
+
+    void createChapter(String title, int episodeNumber, String publicationDate, String content, Long mangaId);
+
+    void subscribeManga(String subscriptionDate, long mangaId, long userId);
+
+    void unsubscribeManga(long id);
+
+    void addMangaRating(long mangaId, long userId, int rating, String date);
+
+    void changeMangaRating(long id, int rating, String date);
 }
