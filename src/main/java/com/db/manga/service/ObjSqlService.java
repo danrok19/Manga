@@ -30,11 +30,21 @@ public interface ObjSqlService {
 
     void createChapter(String title, int episodeNumber, String publicationDate, String content, Long mangaId);
 
+    Chapter findChapterById(Long chapterId);
+
     void subscribeManga(String subscriptionDate, long mangaId, long userId);
 
     void unsubscribeManga(long id);
 
     void addMangaRating(long mangaId, long userId, int rating, String date);
 
+    MangaRating findMangaRatingById(long id);
+
     void changeMangaRating(long id, int rating, String date);
+
+    void addChapterRating(long chapterId, long mangaId, long userId, int rating, String date);
+
+    ChapterRating findChapterRating(long id);
+
+    void changeChapterRating(long id, int rating, String date);
 }
