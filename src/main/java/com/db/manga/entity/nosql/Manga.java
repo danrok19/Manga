@@ -23,9 +23,10 @@ public class Manga {
 
     public Manga(){}
 
-    public Manga(String title, List<String> genre, String description) {
+    public Manga(String title, String description, String authorId, List<String> genre) {
         this.title = title;
         this.genre = genre;
+        this.authorId = new ObjectId(authorId);
         this.description = description;
     }
 

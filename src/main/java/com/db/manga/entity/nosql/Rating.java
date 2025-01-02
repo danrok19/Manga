@@ -9,15 +9,17 @@ public class Rating {
     private ObjectId id;
     private int ratingValue;
     private String ratingType;
+    private String ratingDate;
     private ObjectId userId;
     private ObjectId mangaId;
     private ObjectId chapterId;
 
     public Rating(){}
 
-    public Rating(int ratingValue, String ratingType){
+    public Rating(int ratingValue, String ratingType, String rattingDate){
         this.ratingValue = ratingValue;
         this.ratingType = ratingType;
+        this.ratingDate = rattingDate;
     }
 
     public ObjectId getId() {
@@ -68,12 +70,21 @@ public class Rating {
         this.chapterId = chapterId;
     }
 
+    public String getRatingDate() {
+        return ratingDate;
+    }
+
+    public void setRatingDate(String ratingDate) {
+        this.ratingDate = ratingDate;
+    }
+
     @Override
     public String toString() {
         return "Rating{" +
                 "id=" + id +
                 ", ratingValue=" + ratingValue +
                 ", ratingType='" + ratingType + '\'' +
+                ", ratingDate='" + ratingDate + '\'' +
                 ", userId=" + userId +
                 ", mangaId=" + mangaId +
                 ", chapterId=" + chapterId +

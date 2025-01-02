@@ -12,16 +12,17 @@ public class Chapter {
 
     private String title;
     private int episodeNumber;
-    private String authorId;
     private ObjectId mangaId;
     private String content;
+    private String publicationDate;
 
     public Chapter(){}
 
-    public Chapter(String title, int episodeNumber, String content) {
+    public Chapter(String title, int episodeNumber, String content, String publicationDate) {
         this.title = title;
         this.episodeNumber = episodeNumber;
         this.content = content;
+        this.publicationDate = publicationDate;
     }
 
     public ObjectId getId() {
@@ -48,13 +49,6 @@ public class Chapter {
         this.episodeNumber = episodeNumber;
     }
 
-    public String getAuthorId() {
-        return authorId;
-    }
-
-    public void setAuthorId(String authorId) {
-        this.authorId = authorId;
-    }
 
     public ObjectId getMangaId() {
         return mangaId;
@@ -72,15 +66,23 @@ public class Chapter {
         this.content = content;
     }
 
+    public String getPublicationDate() {
+        return publicationDate;
+    }
+
+    public void setPublicationDate(String publicationDate) {
+        this.publicationDate = publicationDate;
+    }
+
     @Override
     public String toString() {
         return "Chapter{" +
                 "id=" + id +
                 ", title='" + title + '\'' +
                 ", episodeNumber=" + episodeNumber +
-                ", authorId='" + authorId + '\'' +
                 ", mangaId=" + mangaId +
                 ", content='" + content + '\'' +
+                ", publicationDate='" + publicationDate + '\'' +
                 '}';
     }
 }

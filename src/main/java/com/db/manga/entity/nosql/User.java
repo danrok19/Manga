@@ -16,17 +16,16 @@ public class User {
     private String username;
     private String password;
     private String email;
-    private String role;
+    private List<String> roles;
     private String signupDate;
     private List<ObjectId> subscriptions;
 
     public User() {}
 
-    public User(String username, String password, String email, String role, String signupDate) {
+    public User(String username, String password, String email, String signupDate) {
         this.username = username;
         this.password = password;
         this.email = email;
-        this.role = role;
         this.signupDate = signupDate;
     }
 
@@ -35,6 +34,13 @@ public class User {
             subscriptions = new ArrayList<>();
         }
         subscriptions.add(subscription.getId());
+    }
+
+    public void add(String role){
+        if(roles == null) {
+            roles = new ArrayList<>();
+        }
+        roles.add(role);
     }
 
     public ObjectId getId() {
@@ -69,12 +75,12 @@ public class User {
         this.email = email;
     }
 
-    public String getRole() {
-        return role;
+    public List<String> getRoles() {
+        return roles;
     }
 
-    public void setRole(String role) {
-        this.role = role;
+    public void setRoles(List<String> roles) {
+        this.roles = roles;
     }
 
     public String getSignupDate() {
@@ -100,7 +106,7 @@ public class User {
                 ", username='" + username + '\'' +
                 ", password='" + password + '\'' +
                 ", email='" + email + '\'' +
-                ", role='" + role + '\'' +
+                ", roles='" + roles + '\'' +
                 ", signupDate='" + signupDate + '\'' +
                 ", subscriptions=" + subscriptions +
                 '}';
