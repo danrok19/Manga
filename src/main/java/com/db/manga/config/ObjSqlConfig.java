@@ -7,6 +7,7 @@ import org.springframework.boot.autoconfigure.domain.EntityScan;
 import org.springframework.boot.orm.jpa.EntityManagerFactoryBuilder;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Profile;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 import org.springframework.orm.jpa.JpaTransactionManager;
 import org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean;
@@ -16,12 +17,14 @@ import org.springframework.transaction.annotation.EnableTransactionManagement;
 import javax.sql.DataSource;
 
 @Configuration
+@Profile("objsql")
 @EnableJpaRepositories(basePackages = "com.db.manga.dao.sql")
 @EnableTransactionManagement
 @EntityScan(basePackages = "com.db.manga.entity.sql")
 public class ObjSqlConfig {
 
     @Bean
+    @Profile("objsql")
     public DataSource dataSource(){
         HikariDataSource dataSource = new HikariDataSource();
 
@@ -33,6 +36,7 @@ public class ObjSqlConfig {
     }
 
     @Bean
+    @Profile("objsql")
     public LocalContainerEntityManagerFactoryBean entityManagerFactory(EntityManagerFactoryBuilder builder, DataSource dataSource){
         return builder
                 .dataSource(dataSource)
@@ -42,6 +46,7 @@ public class ObjSqlConfig {
     }
 
     @Bean
+    @Profile("objsql")
     public PlatformTransactionManager transactionManager(EntityManagerFactory entityManagerFactory) {
         return new JpaTransactionManager(entityManagerFactory);
     }
