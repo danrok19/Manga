@@ -208,8 +208,8 @@ public class NoSqlServiceImpl implements NoSqlService {
         System.out.println("Found user: " + user);
 
         Rating mangaRating = new Rating(rating, "Manga", date);
-        mangaRating.setUserId(user.getId());
-        mangaRating.setMangaId(manga.getId());
+        mangaRating.setUserId(String.valueOf(user.getId()));
+        mangaRating.setMangaId(String.valueOf(manga.getId()));
 
         System.out.println("Saving rating: " + mangaRating);
         ratingRepository.save(mangaRating);
@@ -224,12 +224,44 @@ public class NoSqlServiceImpl implements NoSqlService {
 
     @Override
     public void changeMangaRating(String id, int rating, String date) {
+        System.out.println("Changing manga rating...");
+        System.out.println("Searching for manga rating...");
+        Optional<Rating> result = ratingRepository.findById(id);
+        Rating mangaRating = result.get();
+        System.out.println("Found manga: " + mangaRating);
 
+        mangaRating.setRatingValue(rating);
+        System.out.println("Saving rating: " + mangaRating);
+        ratingRepository.save(mangaRating);
+        System.out.println("Successfully changed rating!");
     }
 
     @Override
     public void addChapterRating(String chapterId, String mangaId, String userId, int rating, String date) {
+        System.out.println("Adding chapter rating...");
+        Rating chapterRating = new Rating(rating, "Chapter", date);
 
+        System.out.println("Searching for manga...");
+        Optional<Manga> result = mangaRepository.findById(mangaId);
+        Manga manga = result.get();
+        System.out.println("Found manga: " + manga);
+        chapterRating.setMangaId(mangaId);
+
+        System.out.println("Searching for chapter...");
+        Optional<Chapter> resultChapter = chapterRepository.findById(chapterId);
+        Chapter chapter = resultChapter.get();
+        System.out.println("Found chapter: " + chapter);
+        chapterRating.setChapterId(chapterId);
+
+        System.out.println("Searching for user...");
+        Optional<User> resultUser = userRepository.findById(userId);
+        User user = resultUser.get();
+        System.out.println("Found user: " + user);
+        chapterRating.setUserId(String.valueOf(user.getId()));
+
+        System.out.println("Saving chapter: " + chapterRating);
+        ratingRepository.save(chapterRating);
+        System.out.println("Successfully added chapter!");
     }
 
 //    @Override
@@ -239,6 +271,17 @@ public class NoSqlServiceImpl implements NoSqlService {
 
     @Override
     public void changeChapterRating(String id, int rating, String date) {
+        System.out.println("Changing chapter rating...");
+        System.out.println("Searching for chapter rating...");
+        Optional<Rating> result = ratingRepository.findById(id);
+        Rating chapterRating = result.get();
+        System.out.println("Found manga rating: " + chapterRating);
+
+        chapterRating.setRatingValue(rating);
+
+        System.out.println("Saving rating: " + chapterRating);
+        ratingRepository.save(chapterRating);
+        System.out.println("Successfully changed chapter!");
 
     }
 }
