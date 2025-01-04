@@ -50,9 +50,13 @@
                     <div class="row align-items-center">
                         <div class="col-md-10">
                             <div class="position-relative">
-                                <h3 th:text="${manga.title}"></h3>
+                                <div class="d-flex align-items-center gap-4">
+                                    <h3 th:text="${manga.title}"></h3>
+                                    <a class="btn btn-outline-danger btn-sm"
+                                        th:href="@{/manga/{id}/delete(id=${manga.id})}">Delete</a>
+                                </div>
                                 <a th:if="${subscriptionsMap[manga.id.toString()] == null}"
-                                        class="btn btn-outline-success btn-sm position-absolute top-0 end-0"
+                                        class="btn btn-success btn-sm position-absolute top-0 end-0"
                                         th:href="@{/manga/{id}/subscribe(id=${manga.id})}"
                                 >Subscribe</a>
                                 <a th:unless="${subscriptionsMap[manga.id.toString()] == null}"
@@ -67,7 +71,18 @@
                         <div class="col-md-2 text-end">
                             <!-- Sprawdzanie, czy istnieje ocena w ratingsMap -->
                             <div th:if="${ratingsMap[manga.id.toString()] != null}">
-                                <p th:text="'Your rating: ' + ${ratingsMap[manga.id.toString()]}"></p>
+                                <p th:text="'Your rating: '" class="text-start"></p>
+                                <div class="progress">
+                                    <div
+                                            class="progress-bar"
+                                            role="progressbar"
+                                            th:style="'width: ' + (${ratingsMap[manga.id.toString()]} * 10) + '%;'"
+                                            th:aria-valuenow="${ratingsMap[manga.id.toString()]}"
+                                            aria-valuemin="0"
+                                            aria-valuemax="10"
+                                            th:text="${ratingsMap[manga.id.toString()] * 1 + '/10'}">
+                                    </div>
+                                </div>
                             </div>
                             <div th:unless="${ratingsMap[manga.id.toString()] != null}">
                                 <form th:action="@{/manga/{id}/rate(id=${manga.id})}" method="post" class="mt-3">

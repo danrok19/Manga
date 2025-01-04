@@ -17,14 +17,31 @@
             <div th:each="chapter : ${chapters}" class="list-group-item list-group-item-action">
                 <div class="row align-items-center">
                     <div class="col-md-10">
-                        <h5 th:text="${chapter.title}"></h5>
+                        <div class="d-flex align-items-center gap-4">
+                            <h4 th:text="${chapter.title}"></h4>
+                            <a class="btn btn-outline-danger btn-sm"
+                            th:href="@{/manga/{mangaid}/chapter/{chapterid}/delete(mangaid=${manga.id}, chapterid=${chapter.id})}">Delete</a>
+                        </div>
                         <p th:text="'Episode: ' + ${chapter.episodeNumber}"></p>
                         <p th:text="'Published: ' + ${chapter.publicationDate}"></p>
                         <a th:href="@{/chapter/{id}(id=${chapter.id})}" class="btn btn-primary">Read Chapter</a>
                     </div>
                     <div class="col-md-2 text-end">
                         <div th:if="${ratingsMap[chapter.id.toString()] != null}">
-                            <p th:text="'Your rating: ' + ${ratingsMap[chapter.id.toString()]}"></p>
+                            <p th:text="'Your rating: '" class="text-start"></p>
+                            <div class="progress">
+                                <div
+                                    class="progress-bar"
+                                    role="progressbar"
+                                    th:style="'width: ' + (${ratingsMap[chapter.id.toString()]} * 10) + '%'"
+                                    th:aria-valuenow="${ratingsMap[chapter.id.toString()]}"
+                                    aria-valuemin="0"
+                                    aria-valuemax="10"
+                                    th:text="${ratingsMap[chapter.id.toString()] * 1 + '/10'}"
+                                >
+                                </div>
+                            </div>
+
                         </div>
                         <div th:unless="${ratingsMap[chapter.id.toString()] != null}">
                             <form th:action="@{/manga/{mangaid}/chapter/{chapterid}/rate(mangaid=${manga.id}, chapterid=${chapter.id})}" method="post">

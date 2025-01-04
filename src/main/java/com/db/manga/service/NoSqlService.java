@@ -23,6 +23,8 @@ public interface NoSqlService {
 
     List<Manga> getAllMangas();
 
+    void deleteManga(String mangaId);
+
     void createGenre(String name);
 
     List<Genre> findAllGenres();
@@ -34,6 +36,8 @@ public interface NoSqlService {
     Chapter findChapterById(String chapterId);
 
     List<Chapter> getChaptersByMangaId(String mangaId);
+
+    void deleteChapter(String chapterId);
 
     void subscribeManga(String subscriptionDate, String mangaId, String userId);
 

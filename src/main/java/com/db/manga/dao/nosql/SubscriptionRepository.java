@@ -12,4 +12,6 @@ import java.util.List;
 @Repository
 public interface SubscriptionRepository extends MongoRepository<Subscription, String> {
     List<Subscription> findByUserId(ObjectId userId);
+
+    void deleteByMangaId(ObjectId mangaId);
 }

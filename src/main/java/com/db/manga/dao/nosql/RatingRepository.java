@@ -14,9 +14,13 @@ import java.util.List;
 public interface RatingRepository extends MongoRepository<Rating, String> {
 
     @Query("{ 'userId': ?0, 'chapterId': null }")
-    List<Rating> findAllByUserIdAAndChapterIdNull(String userId);
+    List<Rating> findAllByUserIdAAndChapterIdNull(ObjectId userId);
 
-    @Query(value = "{ 'userId': ?0, 'mangaId': ?1, 'chapterId': { $exists: true, $ne: null } }")
+    @Query(value = "{ 'userId': ?0, 'mangaId': ?1, 'chapterId': { $ne: null } }")
     List<Rating> findByUserIdAndMangaIdAndChapterIdNotNull(ObjectId userId, ObjectId mangaId);
+
+    void deleteByChapterId(ObjectId chapterId);
+
+    void deleteByMangaId(ObjectId mangaId);
 }
 

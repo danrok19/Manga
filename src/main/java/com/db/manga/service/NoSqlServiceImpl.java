@@ -131,6 +131,28 @@ public class NoSqlServiceImpl implements NoSqlService {
     }
 
     @Override
+    public void deleteManga(String mangaId){
+        System.out.println("Deleting manga...");
+        System.out.println("Searching for manga");
+        Optional<Manga> result = mangaRepository.findById(mangaId);
+        Manga manga = result.get();
+        System.out.println("Found manga: " + manga);
+
+        System.out.println("Deleting all ratings...");
+        ratingRepository.deleteByMangaId(manga.getId());
+
+        System.out.println("Deleting all manga's chapters...");
+        chapterRepository.deleteByMangaId(manga.getId());
+
+        System.out.println("Deleting all manga's subscriptions...");
+        subscriptionRepository.deleteByMangaId(manga.getId());
+
+        System.out.println("Deleting manga...");
+        mangaRepository.delete(manga);
+        System.out.println("Successfully deleted Manga!");
+    }
+
+    @Override
     public void createGenre(String name) {
         System.out.println("Creating genre...");
         Genre genre = new Genre(name);
@@ -191,6 +213,22 @@ public class NoSqlServiceImpl implements NoSqlService {
         System.out.println("Found chapters: " + chapters);
 
         return chapters;
+    }
+
+    @Override
+    public void deleteChapter(String chapterId){
+        System.out.println("Deleting chapter...");
+        Optional<Chapter> result = chapterRepository.findById(chapterId);
+        Chapter chapter = result.get();
+        System.out.println("Found chapter: " + chapter);
+
+        System.out.println("Deleting all chapter's ratings...");
+        System.out.println("Chapter id: " + chapter.getId());
+        ratingRepository.deleteByChapterId(chapter.getId());
+
+        System.out.println("Deleting chapter...");
+        chapterRepository.delete(chapter);
+        System.out.println("Successfully deleted chapter!");
     }
 
     @Override
@@ -276,10 +314,15 @@ public class NoSqlServiceImpl implements NoSqlService {
     @Override
     public List<Rating> findAllMangaRatingByUserId(String userId){
         System.out.println("Searching for manga ratings by userId...");
-        List<Rating> result = ratingRepository.findAllByUserIdAAndChapterIdNull(userId);
-        System.out.println("Found mangas ratings: " + result);
+        System.out.println("Searching for user...");
+        Optional<User> result = userRepository.findById(userId);
+        User user = result.get();
+        System.out.println("Found user: " + user);
 
-        return result;
+        List<Rating> resultRatings = ratingRepository.findAllByUserIdAAndChapterIdNull(user.getId());
+        System.out.println("Found mangas ratings: " + resultRatings);
+
+        return resultRatings;
 
     }
 
@@ -327,7 +370,7 @@ public class NoSqlServiceImpl implements NoSqlService {
 
         System.out.println("Saving chapter: " + chapterRating);
         ratingRepository.save(chapterRating);
-        System.out.println("Successfully added chapter!");
+        System.out.println("Successfully added rating!");
     }
 
     @Override

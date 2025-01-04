@@ -156,16 +156,18 @@ public class Home {
         return "redirect:/";
     }
 
-    @PostMapping("//manga/{mangaid}/chapter/{chapterid}/delete")
+    @GetMapping("/manga/{mangaid}/chapter/{chapterid}/delete")
     public String deleteChapter(@PathVariable String mangaid, @PathVariable String chapterid){
 
+        theService.deleteChapter(chapterid);
 
         return "redirect:/";
     }
 
-    @PostMapping("//manga/{mangaid}/delete")
-    public String deleteManga(@PathVariable String mangaid){
+    @GetMapping("/manga/{id}/delete")
+    public String deleteManga(@PathVariable String id){
 
+        theService.deleteManga(id);
 
         return "redirect:/";
     }
