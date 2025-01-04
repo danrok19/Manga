@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Home - Manga List</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css">
+</head>
+<body>
+
+<!-- Navbar -->
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+    <div class="container-fluid">
+        <a class="navbar-brand" href="#">Manga Reader</a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav">
+                <li class="nav-item">
+                    <a class="nav-link active" aria-current="page" href="#">Home</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="#">Genres</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="#">Top Rated</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="#">Subscriptions</a>
+                </li>
+                <li class="nav-item" href="#">
+                    <a class="nav-link">Log in</a>
+                </li>
+            </ul>
+        </div>
+    </div>
+</nav>
+<!-- Główna zawartość -->
+<div class="container mt-5">
+    <div class="position-relative">
+        <h1 class="text-center">Mangas</h1>
+        <a class="btn btn-warning position-absolute top-0 end-0" th:href="@{/manga/form}"> Add new Manga </a>
+    </div>
+    <div class="row">
+        <div class="col-md-12">
+            <div class="list-group">
+                <!-- Iteracja przez listę mang -->
+                <div th:each="manga : ${mangaList}" class="list-group-item list-group-item-action">
+                    <div class="row align-items-center">
+                        <div class="col-md-10">
+                            <div class="position-relative">
+                                <h3 th:text="${manga.title}"></h3>
+                                <a th:if="${subscriptionsMap[manga.id.toString()] == null}"
+                                        class="btn btn-outline-success btn-sm position-absolute top-0 end-0"
+                                        th:href="@{/manga/{id}/subscribe(id=${manga.id})}"
+                                >Subscribe</a>
+                                <a th:unless="${subscriptionsMap[manga.id.toString()] == null}"
+                                        class="btn btn-outline-success btn-sm position-absolute top-0 end-0"
+                                        th:href="@{/manga/{id}/unsubscribe(id=${subscriptionsMap[manga.id.toString()]})}"
+                                >Unsubscribe</a>
+                            </div>
+                            <p th:text="'Description: ' + ${manga.description}"></p>
+                            <p th:text="${manga.genre}"></p>
+                            <a th:href="@{/manga/{id}/chapters(id=${manga.id})}" class="btn btn-primary">View Chapters</a>
+                        </div>
+                        <div class="col-md-2 text-end">
+                            <!-- Sprawdzanie, czy istnieje ocena w ratingsMap -->
+                            <div th:if="${ratingsMap[manga.id.toString()] != null}">
+                                <p th:text="'Your rating: ' + ${ratingsMap[manga.id.toString()]}"></p>
+                            </div>
+                            <div th:unless="${ratingsMap[manga.id.toString()] != null}">
+                                <form th:action="@{/manga/{id}/rate(id=${manga.id})}" method="post" class="mt-3">
+                                    <label for="rating" class="form-label">Rate this manga (1-10):</label>
+                                    <select name="rating" id="rating" class="form-select">
+                                        <option th:each="i : ${#numbers.sequence(1, 10)}" th:value="${i}" th:text="${i}"></option>
+                                    </select>
+                                    <button type="submit" class="btn btn-success mt-2">Submit Rating</button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

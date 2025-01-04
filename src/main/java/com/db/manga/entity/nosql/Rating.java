@@ -10,9 +10,9 @@ public class Rating {
     private int ratingValue;
     private String ratingType;
     private String ratingDate;
-    private String userId;
-    private String mangaId;
-    private String chapterId;
+    private ObjectId userId;
+    private ObjectId mangaId;
+    private ObjectId chapterId;
 
     public Rating(){}
 
@@ -46,27 +46,27 @@ public class Rating {
         this.ratingType = ratingType;
     }
 
-    public String getUserId() {
+    public ObjectId getUserId() {
         return userId;
     }
 
-    public void setUserId(String userId) {
+    public void setUserId(ObjectId userId) {
         this.userId = userId;
     }
 
-    public String getMangaId() {
+    public ObjectId getMangaId() {
         return mangaId;
     }
 
-    public void setMangaId(String mangaId) {
+    public void setMangaId(ObjectId mangaId) {
         this.mangaId = mangaId;
     }
 
-    public String getChapterId() {
+    public ObjectId getChapterId() {
         return chapterId;
     }
 
-    public void setChapterId(String chapterId) {
+    public void setChapterId(ObjectId chapterId) {
         this.chapterId = chapterId;
     }
 

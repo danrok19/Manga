@@ -21,27 +21,37 @@ public interface NoSqlService {
 
     Manga getMangaById(String mangaId);
 
-    //void createGenre(String name);
+    List<Manga> getAllMangas();
 
-    //List<String> findAllGenres();
+    void createGenre(String name);
 
-    //String findGenreById(long genreId);
+    List<Genre> findAllGenres();
+
+    Genre findGenreById(String genreId);
 
     void createChapter(String title, int episodeNumber, String publicationDate, String content, String mangaId);
 
     Chapter findChapterById(String chapterId);
 
+    List<Chapter> getChaptersByMangaId(String mangaId);
+
     void subscribeManga(String subscriptionDate, String mangaId, String userId);
 
-    void unsubscribeManga(String id);
+    List<Subscription> findAllSubscriptionsByUserId(String userId);
+
+    void unsubscribeManga(String id, String userId);
 
     void addMangaRating(String mangaId, String userId, int rating, String date);
+
+    List<Rating> findAllMangaRatingByUserId(String userId);
 
     //MangaRating findMangaRatingById(long id);
 
     void changeMangaRating(String id, int rating, String date);
 
     void addChapterRating(String chapterId, String mangaId, String userId, int rating, String date);
+
+    List<Rating> findAllChapterRatingByMangaIdAndByUserId(String mangaId, String userId);
 
     //ChapterRating findChapterRating(long id);
 
