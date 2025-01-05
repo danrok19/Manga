@@ -24,8 +24,9 @@ public class Home {
     @Autowired
     private NoSqlService theService;
 
+
     @Profile("nosql")
-    @GetMapping("/")
+    @GetMapping("/public/")
     public String homePage(Model model) {
         List<Manga> mangaList = theService.getAllMangas();
 
@@ -53,7 +54,7 @@ public class Home {
 
 
     @Profile("nosql")
-    @GetMapping("/manga/{id}/chapters")
+    @GetMapping("/public/manga/{id}/chapters")
     public String viewChapters(@PathVariable String id, Model model) {
 
         Manga manga = theService.getMangaById(id);
@@ -73,7 +74,7 @@ public class Home {
         return "chapters";
     }
 
-    @GetMapping("/chapter/{id}")
+    @GetMapping("/public/chapter/{id}")
     public String viewChapter(@PathVariable String id, Model model) {
         Chapter chapter = theService.findChapterById(id);
 
@@ -85,16 +86,16 @@ public class Home {
         return "chapter"; // Szablon "chapter.html"
     }
 
-    @PostMapping("/manga/{id}/rate")
+    @PostMapping("/reader/manga/{id}/rate")
     public String rateManga(@PathVariable String id, @RequestParam int rating) {
         System.out.println("Rating for manga " + id + ": " + rating);
         theService.addMangaRating(id, tempUserId,rating, String.valueOf(new Date()));
 
-        return "redirect:/"; // Przekierowanie na stronę główną
+        return "redirect:/public/"; // Przekierowanie na stronę główną
     }
 
 
-    @GetMapping("/manga/{id}/chapters/form")
+    @GetMapping("/user/manga/{id}/chapters/form")
     public String getFormChapter(@PathVariable String id, Model model){
         Manga manga = theService.getMangaById(id);
         model.addAttribute("manga", manga);
@@ -102,7 +103,7 @@ public class Home {
         return "chapter-form";
     }
 
-    @PostMapping("/manga/{id}/chapters/save")
+    @PostMapping("/user/manga/{id}/chapters/save")
     public String addChapter(@PathVariable String id,
                              @RequestParam String title,
                              @RequestParam int episodeNumber,
@@ -114,16 +115,16 @@ public class Home {
             theService.createChapter(title, episodeNumber, String.valueOf(new Date()), content, String.valueOf(manga.getId()));
         }
 
-        return "redirect:/";
+        return "redirect:/public/";
     }
 
-    @PostMapping("/manga/{mangaid}/chapter/{chapterid}/rate")
+    @PostMapping("/reader/manga/{mangaid}/chapter/{chapterid}/rate")
     public String rateChapter(@PathVariable String mangaid, @PathVariable String chapterid, @RequestParam int rating){
         theService.addChapterRating(chapterid, mangaid, tempUserId, rating, String.valueOf(new Date()));
-        return "redirect:/";
+        return "redirect:/public/";
     }
 
-    @GetMapping("/manga/form")
+    @GetMapping("/user/manga/form")
     public String getFormManga(Model model){
         List<Genre> genres = theService.findAllGenres();
 
@@ -131,7 +132,7 @@ public class Home {
         return "manga-form";
     }
 
-    @PostMapping("/manga/form/save")
+    @PostMapping("/user/manga/form/save")
     public String addManga(@RequestParam String title,
                            @RequestParam String description,
                            @RequestParam List<String> genres){
@@ -139,37 +140,37 @@ public class Home {
         System.out.println("Start...");
         theService.createManga(title, description, tempUserId, genres);
 
-        return "redirect:/";
+        return "redirect:/public/";
     }
 
-    @GetMapping("/manga/{id}/subscribe")
+    @GetMapping("/reader/manga/{id}/subscribe")
     public String subscribeManga(@PathVariable String id){
         theService.subscribeManga(String.valueOf(new Date()), id, tempUserId);
 
-        return "redirect:/";
+        return "redirect:/public/";
     }
 
-    @GetMapping("/manga/{id}/unsubscribe")
+    @GetMapping("/reader/manga/{id}/unsubscribe")
     public String unSubscribeManga(@PathVariable String id){
         theService.unsubscribeManga(id, tempUserId);
 
-        return "redirect:/";
+        return "redirect:/public/";
     }
 
-    @GetMapping("/manga/{mangaid}/chapter/{chapterid}/delete")
+    @GetMapping("/user/manga/{mangaid}/chapter/{chapterid}/delete")
     public String deleteChapter(@PathVariable String mangaid, @PathVariable String chapterid){
 
         theService.deleteChapter(chapterid);
 
-        return "redirect:/";
+        return "redirect:/public/";
     }
 
-    @GetMapping("/manga/{id}/delete")
+    @GetMapping("/user/manga/{id}/delete")
     public String deleteManga(@PathVariable String id){
 
         theService.deleteManga(id);
 
-        return "redirect:/";
+        return "redirect:/public/";
     }
 
 

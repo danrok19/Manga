@@ -17,7 +17,7 @@
         <div class="collapse navbar-collapse" id="navbarNav">
             <ul class="navbar-nav">
                 <li class="nav-item">
-                    <a class="nav-link active" aria-current="page" th:href="@{/}">Home</a>
+                    <a class="nav-link active" aria-current="page" th:href="@{/public/}">Home</a>
                 </li>
                 <li class="nav-item">
                     <a class="nav-link" href="#">My account</a>
@@ -36,7 +36,7 @@
 <div class="container mt-5">
     <div class="position-relative">
         <h1 th:text="${manga.title}"></h1>
-        <a class="btn btn-success mt-2 position-absolute top-0 end-0" th:href="@{/manga/{id}/chapters/form(id=${manga.id})}">Add new chapter</a>
+        <a class="btn btn-success mt-2 position-absolute top-0 end-0" th:href="@{/user/manga/{id}/chapters/form(id=${manga.id})}">Add new chapter</a>
     </div>
         <div class="list-group">
             <!-- Iteracja przez rozdziały -->
@@ -46,11 +46,11 @@
                         <div class="d-flex align-items-center gap-4">
                             <h4 th:text="${chapter.title}"></h4>
                             <a class="btn btn-outline-danger btn-sm"
-                            th:href="@{/manga/{mangaid}/chapter/{chapterid}/delete(mangaid=${manga.id}, chapterid=${chapter.id})}">Delete</a>
+                            th:href="@{/user/manga/{mangaid}/chapter/{chapterid}/delete(mangaid=${manga.id}, chapterid=${chapter.id})}">Delete</a>
                         </div>
                         <p th:text="'Episode: ' + ${chapter.episodeNumber}"></p>
                         <p th:text="'Published: ' + ${chapter.publicationDate}"></p>
-                        <a th:href="@{/chapter/{id}(id=${chapter.id})}" class="btn btn-primary">Read Chapter</a>
+                        <a th:href="@{/public/chapter/{id}(id=${chapter.id})}" class="btn btn-primary">Read Chapter</a>
                     </div>
                     <div class="col-md-2 text-end">
                         <div th:if="${ratingsMap[chapter.id.toString()] != null}">
@@ -70,7 +70,7 @@
 
                         </div>
                         <div th:unless="${ratingsMap[chapter.id.toString()] != null}">
-                            <form th:action="@{/manga/{mangaid}/chapter/{chapterid}/rate(mangaid=${manga.id}, chapterid=${chapter.id})}" method="post">
+                            <form th:action="@{/reader/manga/{mangaid}/chapter/{chapterid}/rate(mangaid=${manga.id}, chapterid=${chapter.id})}" method="post">
                                 <label for="rating" class="form-label">Rate this chapter (1-10):</label>
                                 <select name="rating" id="rating" class="form-select">
                                     <option th:each="i : ${#numbers.sequence(1, 10)}" th:text="${i}"></option>
