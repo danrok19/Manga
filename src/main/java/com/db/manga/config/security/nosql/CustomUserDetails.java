@@ -1,12 +1,14 @@
 package com.db.manga.config.security.nosql;
 
 import com.db.manga.entity.nosql.User;
+import org.bson.types.ObjectId;
 import org.springframework.context.annotation.Profile;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import java.util.Collection;
+import java.util.List;
 import java.util.stream.Collectors;
 
 @Profile("nosql")
@@ -25,6 +27,23 @@ public class CustomUserDetails implements UserDetails {
                 .map(role -> new SimpleGrantedAuthority("ROLE_" + role))
                 .collect(Collectors.toList());
     }
+
+    public String getId(){
+        return String.valueOf(user.getId());
+    }
+
+    public String getEmail(){
+        return user.getEmail();
+    }
+
+    public List<String> getRoles(){
+        return user.getRoles();
+    }
+
+    public String getSignupDate(){
+        return user.getSignupDate();
+    }
+
 
     @Override
     public String getPassword() {

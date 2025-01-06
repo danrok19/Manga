@@ -122,6 +122,21 @@ public class NoSqlServiceImpl implements NoSqlService {
     }
 
     @Override
+    public List<Manga> getMangaByUserId(String userId){
+        System.out.println("Searching for user...");
+        Optional<User> result = userRepository.findById(userId);
+        User user = result.get();
+        System.out.println("Found user: " + user);
+
+        System.out.println("Searching for manga...");
+        ObjectId objectId = new ObjectId(userId);
+        List<Manga> mangas = mangaRepository.findByAuthorId(objectId);
+        System.out.println("Found mangas: " + mangas);
+
+        return mangas;
+    }
+
+    @Override
     public List<Manga> getAllMangas(){
         System.out.println("Searching for all mangas...");
         List<Manga> result = mangaRepository.findAll();

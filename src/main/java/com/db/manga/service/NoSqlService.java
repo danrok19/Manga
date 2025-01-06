@@ -21,6 +21,8 @@ public interface NoSqlService {
 
     Manga getMangaById(String mangaId);
 
+    List<Manga> getMangaByUserId(String userId);
+
     List<Manga> getAllMangas();
 
     void deleteManga(String mangaId);

@@ -1,9 +1,12 @@
 package com.db.manga.controller;
 
+import com.db.manga.config.security.nosql.CustomUserDetails;
 import com.db.manga.entity.nosql.*;
 import com.db.manga.service.NoSqlService;
+import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Profile;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -11,6 +14,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -19,7 +23,7 @@ import java.util.stream.Collectors;
 @Controller
 @Profile({"sql", "objsql", "nosql"})
 public class Home {
-    private String tempUserId = "67769ae010286664a18318f2";
+    //private String tempUserId = "67769ae010286664a18318f2";
 
     @Autowired
     private NoSqlService theService;
@@ -27,12 +31,19 @@ public class Home {
 
     @Profile("nosql")
     @GetMapping("/public/")
-    public String homePage(Model model) {
+    public String homePage(Model model, @AuthenticationPrincipal CustomUserDetails auth) {
+
+        String username = auth.getUsername();  // Uzyskiwanie nazwy użytkownika
+
+        model.addAttribute("username", username);
+
+        System.out.println("Id usera: " + auth.getId());
+
         List<Manga> mangaList = theService.getAllMangas();
 
-        List<Rating> ratingList = theService.findAllMangaRatingByUserId(tempUserId);
+        List<Rating> ratingList = theService.findAllMangaRatingByUserId(auth.getId());
 
-        List<Subscription> subscriptionList = theService.findAllSubscriptionsByUserId(tempUserId);
+        List<Subscription> subscriptionList = theService.findAllSubscriptionsByUserId(auth.getId());
 
         // creating a map of {mangaId = ratingValue}
         Map<String, Integer> ratingsMap = ratingList.stream()
@@ -55,13 +66,14 @@ public class Home {
 
     @Profile("nosql")
     @GetMapping("/public/manga/{id}/chapters")
-    public String viewChapters(@PathVariable String id, Model model) {
+    public String viewChapters(@PathVariable String id, Model model, @AuthenticationPrincipal CustomUserDetails auth) {
+
 
         Manga manga = theService.getMangaById(id);
 
         List<Chapter> chapters = theService.getChaptersByMangaId(id);
 
-        List<Rating> ratingList = theService.findAllChapterRatingByMangaIdAndByUserId(id, tempUserId);
+        List<Rating> ratingList = theService.findAllChapterRatingByMangaIdAndByUserId(id, auth.getId());
 
         // creating a map of {chapterid = ratingValue}
         Map<String, Integer> ratingsMap = ratingList.stream()
@@ -87,9 +99,9 @@ public class Home {
     }
 
     @PostMapping("/reader/manga/{id}/rate")
-    public String rateManga(@PathVariable String id, @RequestParam int rating) {
+    public String rateManga(@PathVariable String id, @RequestParam int rating, @AuthenticationPrincipal CustomUserDetails auth) {
         System.out.println("Rating for manga " + id + ": " + rating);
-        theService.addMangaRating(id, tempUserId,rating, String.valueOf(new Date()));
+        theService.addMangaRating(id, auth.getId(), rating, String.valueOf(new Date()));
 
         return "redirect:/public/"; // Przekierowanie na stronę główną
     }
@@ -107,11 +119,12 @@ public class Home {
     public String addChapter(@PathVariable String id,
                              @RequestParam String title,
                              @RequestParam int episodeNumber,
-                             @RequestParam String content){
+                             @RequestParam String content,
+                             @AuthenticationPrincipal CustomUserDetails auth){
 
         Manga manga = theService.getMangaById(id);
 
-        if(tempUserId.equals(String.valueOf(manga.getAuthorId()))){
+        if(auth.getId().equals(String.valueOf(manga.getAuthorId()))){
             theService.createChapter(title, episodeNumber, String.valueOf(new Date()), content, String.valueOf(manga.getId()));
         }
 
@@ -119,8 +132,8 @@ public class Home {
     }
 
     @PostMapping("/reader/manga/{mangaid}/chapter/{chapterid}/rate")
-    public String rateChapter(@PathVariable String mangaid, @PathVariable String chapterid, @RequestParam int rating){
-        theService.addChapterRating(chapterid, mangaid, tempUserId, rating, String.valueOf(new Date()));
+    public String rateChapter(@PathVariable String mangaid, @PathVariable String chapterid, @RequestParam int rating, @AuthenticationPrincipal CustomUserDetails auth){
+        theService.addChapterRating(chapterid, mangaid, auth.getId(), rating, String.valueOf(new Date()));
         return "redirect:/public/";
     }
 
@@ -135,24 +148,25 @@ public class Home {
     @PostMapping("/user/manga/form/save")
     public String addManga(@RequestParam String title,
                            @RequestParam String description,
-                           @RequestParam List<String> genres){
+                           @RequestParam List<String> genres,
+                           @AuthenticationPrincipal CustomUserDetails auth){
 
         System.out.println("Start...");
-        theService.createManga(title, description, tempUserId, genres);
+        theService.createManga(title, description, auth.getId(), genres);
 
         return "redirect:/public/";
     }
 
     @GetMapping("/reader/manga/{id}/subscribe")
-    public String subscribeManga(@PathVariable String id){
-        theService.subscribeManga(String.valueOf(new Date()), id, tempUserId);
+    public String subscribeManga(@PathVariable String id, @AuthenticationPrincipal CustomUserDetails auth){
+        theService.subscribeManga(String.valueOf(new Date()), id, auth.getId());
 
         return "redirect:/public/";
     }
 
     @GetMapping("/reader/manga/{id}/unsubscribe")
-    public String unSubscribeManga(@PathVariable String id){
-        theService.unsubscribeManga(id, tempUserId);
+    public String unSubscribeManga(@PathVariable String id, @AuthenticationPrincipal CustomUserDetails auth){
+        theService.unsubscribeManga(id, auth.getId());
 
         return "redirect:/public/";
     }
@@ -171,6 +185,26 @@ public class Home {
         theService.deleteManga(id);
 
         return "redirect:/public/";
+    }
+
+    @GetMapping("/user/profile")
+    public String getProfile(Model model, @AuthenticationPrincipal CustomUserDetails auth){
+        model.addAttribute("username", auth.getUsername());
+        model.addAttribute("email", auth.getEmail());
+        model.addAttribute("roles", auth.getRoles());
+        model.addAttribute("signupDate", auth.getSignupDate());
+
+        List<Subscription> subs = theService.findAllSubscriptionsByUserId(auth.getId());
+
+        List<Manga> mangas = new ArrayList<>();
+        for(Subscription sub : subs){
+            mangas.add(theService.getMangaById(String.valueOf(sub.getMangaId())));
+        }
+        model.addAttribute("mangas", mangas);
+
+        model.addAttribute("myMangas", theService.getMangaByUserId(auth.getId()));
+
+        return "user-profile";
     }
 
 
