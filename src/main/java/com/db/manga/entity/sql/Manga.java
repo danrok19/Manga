@@ -30,7 +30,7 @@ public class Manga {
     @OneToMany(mappedBy = "manga", cascade = CascadeType.ALL)
     private List<Subscription> subscriptions;
 
-    @ManyToMany()
+    @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(
             name = "manga_genre",
             joinColumns = @JoinColumn(name = "manga_id"),

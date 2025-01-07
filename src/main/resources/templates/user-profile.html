@@ -64,7 +64,7 @@
                     <div class="d-flex justify-content-between align-items-center w-25 my-1">
                         <a th:text="${manga.getTitle()}" th:href="@{/public/manga/{id}/chapters(id=${manga.getId()})}"></a>
                         <a class="btn btn-outline-danger btn-sm"
-                           th:href="@{/user/manga/{id}/delete(mangaid=${manga.getId()})}">Delete</a>
+                           th:href="@{/user/manga/{id}/delete(id=${manga.getId()})}">Delete</a>
                     </div>
                 </li>
             </ul>

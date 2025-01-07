@@ -6,4 +6,5 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 @Profile({"sql", "objsql"})
 public interface GenreRepository extends JpaRepository<Genre, Long> {
+    Genre findByName(String name);
 }

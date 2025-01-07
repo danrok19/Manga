@@ -360,7 +360,7 @@ public class ObjSqlServiceImpl implements ObjSqlService {
         chapterRepository.addChapter(chapter.getTitle(),
                 chapter.getEpisodeNumber(),
                 chapter.getPublicationDate(),
-                chapter.getChapterContent(),
+                chapter.getContent(),
                 chapter.getManga().getId()
         );
         System.out.println("Successfully created Chapter!");
@@ -405,7 +405,7 @@ public class ObjSqlServiceImpl implements ObjSqlService {
                 chapter.setTitle(parts[0].trim());
                 chapter.setEpisodeNumber(Integer.parseInt(parts[1].trim()));
                 chapter.setPublicationDate(parts[2].trim());
-                chapter.setChapterContent(String.join(",", Arrays.copyOfRange(parts, 3, parts.length)).trim().replace("\"", ""));
+                chapter.setContent(String.join(",", Arrays.copyOfRange(parts, 3, parts.length)).trim().replace("\"", ""));
 
 
                 String[] partsManga = mangaData.split(",");
@@ -673,7 +673,7 @@ public class ObjSqlServiceImpl implements ObjSqlService {
                 chapter.setEpisodeNumber(Integer.parseInt(chapterParts[1].trim()));
                 chapter.setPublicationDate(chapterParts[2].trim());
                 //System.out.println("3: " + String.join(",", Arrays.copyOfRange(chapterParts, 3, chapterParts.length)).trim().replace("\"", ""));
-                chapter.setChapterContent(String.join(",", Arrays.copyOfRange(chapterParts, 3, chapterParts.length)).trim().replace("\"", ""));
+                chapter.setContent(String.join(",", Arrays.copyOfRange(chapterParts, 3, chapterParts.length)).trim().replace("\"", ""));
                 chapterRating.setChapter(chapter);
 
                 // Mapowanie manga

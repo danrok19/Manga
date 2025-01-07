@@ -63,7 +63,6 @@
                                 >Unsubscribe</a>
                             </div>
                             <p th:text="'Description: ' + ${manga.description}"></p>
-                            <p th:text="${manga.genre}"></p>
                             <a th:href="@{/public/manga/{id}/chapters(id=${manga.id})}" class="btn btn-primary">View Chapters</a>
                         </div>
                         <div class="col-md-2 text-end"

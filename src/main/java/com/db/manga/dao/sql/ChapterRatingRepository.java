@@ -1,6 +1,9 @@
 package com.db.manga.dao.sql;
 
+import com.db.manga.entity.sql.Chapter;
 import com.db.manga.entity.sql.ChapterRating;
+import com.db.manga.entity.sql.Manga;
+import com.db.manga.entity.sql.User;
 import org.springframework.context.annotation.Profile;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
@@ -8,8 +11,16 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
+
 @Profile({"sql", "objsql"})
 public interface ChapterRatingRepository extends JpaRepository<ChapterRating, Long> {
+
+    List<ChapterRating> findByMangaAndUser(Manga manga, User user);
+
+    void deleteByManga(Manga manga);
+
+
 
     @Modifying
     @Transactional

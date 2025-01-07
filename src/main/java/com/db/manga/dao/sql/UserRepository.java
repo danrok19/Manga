@@ -11,6 +11,8 @@ import org.springframework.transaction.annotation.Transactional;
 @Profile({"sql", "objsql"})
 public interface UserRepository extends JpaRepository<User, Long> {
 
+    User findByUsername(String username);
+
 
     @Modifying
     @Transactional

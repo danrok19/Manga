@@ -18,13 +18,25 @@ public interface SqlService {
 
     List<Role> findAllRoles();
 
+    Role findRoleByRoleDescription(String roleDescription);
+
     void createManga(String title, String description, long authorId, List<Genre> genres);
 
     Manga getMangaById(Long mangaId);
 
+    List<Manga> getAllMangas();
+
+    List<Manga> getMangaByUserId(long userId);
+
+    void deleteManga(Long mangaId);
+
+    void deleteChapter(Long chapterId);
+
     void createGenre(String name);
 
     List<Genre> findAllGenres();
+
+    Genre findGenreByName(String name);
 
     Genre findGenreById(long genreId);
 
@@ -32,13 +44,21 @@ public interface SqlService {
 
     Chapter findChapterById(Long chapterId);
 
+    List<Chapter> getChaptersByMangaId(long mangaId);
+
     void subscribeManga(String subscriptionDate, long mangaId, long userId);
 
     void unsubscribeManga(long id);
 
+    List<Subscription> findAllSubscriptionsByUserId(long userId);
+
     void addMangaRating(long mangaId, long userId, int rating, String date);
 
     MangaRating findMangaRatingById(long id);
+
+    List<MangaRating> findAllMangaRatingByUserId(String userId);
+
+    List<ChapterRating> findAllChapterRatingByMangaIdAndByUserId(long mangaId, long userId);
 
     void changeMangaRating(long id, int rating, String date);
 

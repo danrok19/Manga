@@ -22,7 +22,7 @@ public class Chapter {
     private String publicationDate;
 
     @Column(name = "chapter_content")
-    private String chapterContent;
+    private String content;
 
     @ManyToOne(optional = false)
     @JoinColumn(name = "manga_id")
@@ -34,7 +34,7 @@ public class Chapter {
         this.title = title;
         this.episodeNumber = episodeNumber;
         this.publicationDate = publicationDate;
-        this.chapterContent = chapterContent;
+        this.content = chapterContent;
     }
 
     public long getId() {
@@ -69,12 +69,12 @@ public class Chapter {
         this.publicationDate = publicationDate;
     }
 
-    public String getChapterContent() {
-        return chapterContent;
+    public String getContent() {
+        return content;
     }
 
-    public void setChapterContent(String chapterContent) {
-        this.chapterContent = chapterContent;
+    public void setContent(String chapterContent) {
+        this.content = chapterContent;
     }
 
     public Manga getManga() {
@@ -92,7 +92,7 @@ public class Chapter {
                 ", title='" + title + '\'' +
                 ", episodeNumber=" + episodeNumber +
                 ", publicationDate='" + publicationDate + '\'' +
-                ", chapterContent='" + chapterContent + '\'' +
+                ", chapterContent='" + content + '\'' +
                 '}';
     }
 }

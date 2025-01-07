@@ -6,4 +6,5 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 @Profile({"sql", "objsql"})
 public interface RoleRepository extends JpaRepository<Role, Long> {
+    Role findByRoleDescription(String roleDescription);
 }

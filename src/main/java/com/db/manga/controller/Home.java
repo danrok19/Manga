@@ -24,7 +24,7 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 @Controller
-@Profile({"sql", "objsql", "nosql"})
+@Profile("nosql")
 public class Home {
 
     @Autowired
@@ -35,7 +35,6 @@ public class Home {
         return "login";
     }
 
-    @Profile("nosql")
     @GetMapping("/")
     public String homePage(Model model, @AuthenticationPrincipal CustomUserDetails auth) {
 
@@ -70,7 +69,6 @@ public class Home {
     }
 
 
-    @Profile("nosql")
     @GetMapping("/public/manga/{id}/chapters")
     public String viewChapters(@PathVariable String id, Model model, @AuthenticationPrincipal CustomUserDetails auth) {
 

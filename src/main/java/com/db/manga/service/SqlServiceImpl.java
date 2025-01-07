@@ -100,6 +100,15 @@ public class SqlServiceImpl implements SqlService{
         return result;
     }
 
+    public Role findRoleByRoleDescription(String roleDescription){
+        System.out.println("Searching for role...");
+        Optional<Role> result = Optional.ofNullable(roleRepository.findByRoleDescription(roleDescription));
+        Role role = result.get();
+        System.out.println("Found role: " + role);
+
+        return role;
+    }
+
     @Override
     public void createManga(String title, String description, long authorId, List<Genre> genres) {
         System.out.println("Creating manga...");
@@ -110,6 +119,7 @@ public class SqlServiceImpl implements SqlService{
         Optional<User> result = userRepository.findById(authorId);
         User user = result.get();
         System.out.println("Found user: " + user);
+        manga.setAutor(user);
 
         System.out.println("Searching for genres...");
         for (Genre genre : genres) {
@@ -127,13 +137,69 @@ public class SqlServiceImpl implements SqlService{
     }
 
     @Override
+    public List<Manga> getAllMangas(){
+        System.out.println("Searching for mangas...");
+        List<Manga> result = mangaRepository.findAll();
+        System.out.println("Found mangas: " + result);
+
+        return result;
+    }
+
+    @Override
+    public List<Manga> getMangaByUserId(long userId){
+        System.out.println("Searching for mangas...");
+        System.out.println("Searching for user...");
+        Optional<User> result = userRepository.findById(userId);
+        User user = result.get();
+
+        List<Manga> mangas = mangaRepository.findByAutor(user);
+        System.out.println("Found mangas: " + mangas);
+
+        return mangas;
+    }
+
+    @Override
     public Manga getMangaById(Long mangaId) {
         System.out.println("Searching for manga...");
         Optional<Manga> result = mangaRepository.findById(mangaId);
         Manga manga = result.get();
         System.out.println("Found manga: " + manga);
 
+        manga.getGenres().clear();
+        manga.getSubscriptions().clear();
+        manga.getChapters().clear();
+
         return manga;
+    }
+
+    @Override
+    public void deleteManga(Long mangaId) {
+        System.out.println("Deleting manga...");
+        Optional<Manga> result = mangaRepository.findById(mangaId);
+        System.out.println("Found manga: " + result);
+        Manga manga = result.get();
+
+        chapterRatingRepository.deleteByManga(manga);
+        mangaRatingRepository.deleteByManga(manga);
+        subscriptionRepository.deleteByManga(manga);
+        chapterRepository.deleteByManga(manga);
+
+
+        mangaRepository.deleteById(manga.getId());
+        System.out.println("Successfully deleted manga! HERE");
+    }
+
+    @Override
+    public void deleteChapter(Long chapterId){
+        System.out.println("Deleting chapter...");
+        Optional<Chapter> result = chapterRepository.findById(chapterId);
+        Chapter chapter = result.get();
+        System.out.println("Found chapter: " + chapter);
+
+        System.out.println("Searching for manga...");
+
+        chapterRepository.deleteById(chapter.getId());
+        System.out.println("Successfully deleted chapter!");
     }
 
     @Override
@@ -165,6 +231,17 @@ public class SqlServiceImpl implements SqlService{
     }
 
     @Override
+    public Genre findGenreByName(String name){
+        System.out.println("Searching for genre...");
+        Optional<Genre> result = Optional.ofNullable(genreRepository.findByName(name));
+        Genre genre = result.get();
+        System.out.println("Found genre: " + genre);
+
+        return genre;
+
+    }
+
+    @Override
     public void createChapter(String title, int episodeNumber, String publicationDate, String content, Long mangaId) {
         System.out.println("Creating chapter...");
         Chapter chapter = new Chapter(title, episodeNumber, publicationDate, content);
@@ -189,6 +266,19 @@ public class SqlServiceImpl implements SqlService{
         System.out.println("Found chapter: " + chapter);
 
         return chapter;
+    }
+
+    @Override
+    public List<Chapter> getChaptersByMangaId(long mangaId){
+        System.out.println("Searching for chapters...");
+        System.out.println("Searching for manga...");
+        Optional<Manga> result = mangaRepository.findById(mangaId);
+        Manga manga = result.get();
+
+        List<Chapter> chapters = chapterRepository.findByManga(manga);
+        System.out.println("Found chapters: " + chapters);
+
+        return chapters;
     }
 
     @Override
@@ -225,6 +315,15 @@ public class SqlServiceImpl implements SqlService{
     }
 
     @Override
+    public List<Subscription> findAllSubscriptionsByUserId(long userId){
+        System.out.println("Searching for subscriptions...");
+        List<Subscription> result = subscriptionRepository.findByUserId(userId);
+        System.out.println("Found subscriptions: " + result);
+
+        return result;
+    }
+
+    @Override
     public void addMangaRating(long mangaId, long userId, int rating, String date) {
         System.out.println("Adding manga rating...");
         MangaRating mangaRating = new MangaRating(rating, date);
@@ -258,6 +357,16 @@ public class SqlServiceImpl implements SqlService{
     }
 
     @Override
+    public List<MangaRating> findAllMangaRatingByUserId(String userId){
+        System.out.println("Searching for manga ratings...");
+        long id = Long.parseLong(userId);
+        List<MangaRating> mangaRatings = mangaRatingRepository.findByUserId(id);
+        System.out.println("Found manga ratings: " + mangaRatings);
+
+        return mangaRatings;
+    }
+
+    @Override
     public void changeMangaRating(long id, int rating, String date) {
         System.out.println("Changing manga rating...");
         System.out.println("Searching for manga rating...");
@@ -270,6 +379,27 @@ public class SqlServiceImpl implements SqlService{
         System.out.println("Saving manga rating: " + mangaRating);
         mangaRatingRepository.save(mangaRating);
         System.out.println("Successfully changed manga rating!");
+    }
+
+    @Override
+    public List<ChapterRating> findAllChapterRatingByMangaIdAndByUserId(long mangaId, long userId){
+        System.out.println("Searching for manga rating...");
+        System.out.println("Searching for manga...");
+        Optional<Manga> resultManga = mangaRepository.findById(mangaId);
+        Manga manga = resultManga.get();
+        System.out.println("Found mangaRating: " + manga);
+
+        System.out.println("Searching for user...");
+        Optional<User> resultUser = userRepository.findById(userId);
+        User user = resultUser.get();
+        System.out.println("Found user: " + user);
+
+        System.out.println("Searching for chapter ratings...");
+        List<ChapterRating> chapterRatings = chapterRatingRepository.findByMangaAndUser(manga, user);
+        System.out.println("Found chapterRatings: " + chapterRatings);
+
+        return chapterRatings;
+
     }
 
     @Override

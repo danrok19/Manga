@@ -31,7 +31,7 @@
 </nav>
 <div class="container mt-5">
     <h1 class="text-center mb-4" th:text="${manga.title} + ' - Add New Chapter'"></h1>
-    <form th:action="@{/manga/{id}/chapters/save(id=${manga.id})}" method="post">
+    <form th:action="@{/user/manga/{id}/chapters/save(id=${manga.id})}" method="post">
 
         <div class="form-group">
             <label for="title" class="form-label">Title</label>
