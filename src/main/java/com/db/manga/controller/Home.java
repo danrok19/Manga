@@ -3,10 +3,13 @@ package com.db.manga.controller;
 import com.db.manga.config.security.nosql.CustomUserDetails;
 import com.db.manga.entity.nosql.*;
 import com.db.manga.service.NoSqlService;
+import com.db.manga.service.SqlService;
 import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Profile;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -23,17 +26,20 @@ import java.util.stream.Collectors;
 @Controller
 @Profile({"sql", "objsql", "nosql"})
 public class Home {
-    //private String tempUserId = "67769ae010286664a18318f2";
 
     @Autowired
     private NoSqlService theService;
 
+    @GetMapping("/login")
+    String login() {
+        return "login";
+    }
 
     @Profile("nosql")
-    @GetMapping("/public/")
+    @GetMapping("/")
     public String homePage(Model model, @AuthenticationPrincipal CustomUserDetails auth) {
 
-        String username = auth.getUsername();  // Uzyskiwanie nazwy użytkownika
+        String username = auth.getUsername();
 
         model.addAttribute("username", username);
 
@@ -68,6 +74,9 @@ public class Home {
     @GetMapping("/public/manga/{id}/chapters")
     public String viewChapters(@PathVariable String id, Model model, @AuthenticationPrincipal CustomUserDetails auth) {
 
+        String username = auth.getUsername();
+
+        model.addAttribute("username", username);
 
         Manga manga = theService.getMangaById(id);
 
@@ -82,12 +91,17 @@ public class Home {
         model.addAttribute("manga", manga);
         model.addAttribute("ratingsMap", ratingsMap);
         model.addAttribute("chapters", chapters);
+        model.addAttribute("userId", auth.getId());
+        model.addAttribute("authorId", String.valueOf(manga.getAuthorId()));
 
         return "chapters";
     }
 
     @GetMapping("/public/chapter/{id}")
-    public String viewChapter(@PathVariable String id, Model model) {
+    public String viewChapter(@PathVariable String id, Model model, @AuthenticationPrincipal CustomUserDetails auth) {
+        String username = auth.getUsername();
+
+        model.addAttribute("username", username);
         Chapter chapter = theService.findChapterById(id);
 
         if (chapter == null) {
@@ -103,12 +117,15 @@ public class Home {
         System.out.println("Rating for manga " + id + ": " + rating);
         theService.addMangaRating(id, auth.getId(), rating, String.valueOf(new Date()));
 
-        return "redirect:/public/"; // Przekierowanie na stronę główną
+        return "redirect:/"; // Przekierowanie na stronę główną
     }
 
 
     @GetMapping("/user/manga/{id}/chapters/form")
-    public String getFormChapter(@PathVariable String id, Model model){
+    public String getFormChapter(@PathVariable String id, Model model, @AuthenticationPrincipal CustomUserDetails auth){
+        String username = auth.getUsername();
+
+        model.addAttribute("username", username);
         Manga manga = theService.getMangaById(id);
         model.addAttribute("manga", manga);
 
@@ -120,7 +137,11 @@ public class Home {
                              @RequestParam String title,
                              @RequestParam int episodeNumber,
                              @RequestParam String content,
-                             @AuthenticationPrincipal CustomUserDetails auth){
+                             @AuthenticationPrincipal CustomUserDetails auth,
+                             Model model){
+        String username = auth.getUsername();
+
+        model.addAttribute("username", username);
 
         Manga manga = theService.getMangaById(id);
 
@@ -128,17 +149,23 @@ public class Home {
             theService.createChapter(title, episodeNumber, String.valueOf(new Date()), content, String.valueOf(manga.getId()));
         }
 
-        return "redirect:/public/";
+        return "redirect:/";
     }
 
     @PostMapping("/reader/manga/{mangaid}/chapter/{chapterid}/rate")
-    public String rateChapter(@PathVariable String mangaid, @PathVariable String chapterid, @RequestParam int rating, @AuthenticationPrincipal CustomUserDetails auth){
+    public String rateChapter(@PathVariable String mangaid, @PathVariable String chapterid, @RequestParam int rating, @AuthenticationPrincipal CustomUserDetails auth, Model model){
+        String username = auth.getUsername();
+
+        model.addAttribute("username", username);
         theService.addChapterRating(chapterid, mangaid, auth.getId(), rating, String.valueOf(new Date()));
-        return "redirect:/public/";
+        return "redirect:/";
     }
 
     @GetMapping("/user/manga/form")
-    public String getFormManga(Model model){
+    public String getFormManga(Model model, @AuthenticationPrincipal CustomUserDetails auth){
+        String username = auth.getUsername();
+
+        model.addAttribute("username", username);
         List<Genre> genres = theService.findAllGenres();
 
         model.addAttribute("genres", genres);
@@ -149,26 +176,29 @@ public class Home {
     public String addManga(@RequestParam String title,
                            @RequestParam String description,
                            @RequestParam List<String> genres,
-                           @AuthenticationPrincipal CustomUserDetails auth){
+                           @AuthenticationPrincipal CustomUserDetails auth,
+                           Model model){
+        String username = auth.getUsername();
 
+        model.addAttribute("username", username);
         System.out.println("Start...");
         theService.createManga(title, description, auth.getId(), genres);
 
-        return "redirect:/public/";
+        return "redirect:/";
     }
 
     @GetMapping("/reader/manga/{id}/subscribe")
     public String subscribeManga(@PathVariable String id, @AuthenticationPrincipal CustomUserDetails auth){
         theService.subscribeManga(String.valueOf(new Date()), id, auth.getId());
 
-        return "redirect:/public/";
+        return "redirect:/";
     }
 
     @GetMapping("/reader/manga/{id}/unsubscribe")
     public String unSubscribeManga(@PathVariable String id, @AuthenticationPrincipal CustomUserDetails auth){
         theService.unsubscribeManga(id, auth.getId());
 
-        return "redirect:/public/";
+        return "redirect:/";
     }
 
     @GetMapping("/user/manga/{mangaid}/chapter/{chapterid}/delete")
@@ -176,7 +206,7 @@ public class Home {
 
         theService.deleteChapter(chapterid);
 
-        return "redirect:/public/";
+        return "redirect:/";
     }
 
     @GetMapping("/user/manga/{id}/delete")
@@ -184,10 +214,10 @@ public class Home {
 
         theService.deleteManga(id);
 
-        return "redirect:/public/";
+        return "redirect:/";
     }
 
-    @GetMapping("/user/profile")
+    @GetMapping("/reader/profile")
     public String getProfile(Model model, @AuthenticationPrincipal CustomUserDetails auth){
         model.addAttribute("username", auth.getUsername());
         model.addAttribute("email", auth.getEmail());
@@ -205,6 +235,27 @@ public class Home {
         model.addAttribute("myMangas", theService.getMangaByUserId(auth.getId()));
 
         return "user-profile";
+    }
+
+    @GetMapping("/register")
+    public String registerPage(Model model){
+        List<String> roles = new ArrayList<>();
+        roles.add("CREATOR");
+        roles.add("READER");
+        model.addAttribute("roles", roles);
+        return "register";
+    }
+
+    @PostMapping("/public/register/")
+    public String registerUser(@RequestParam String username,
+                               @RequestParam String password,
+                               @RequestParam String email,
+                               @RequestParam List<String> roles){
+        PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
+
+        theService.createUser(username, passwordEncoder.encode(password), email, String.valueOf(new Date()), roles);
+
+        return "/";
     }
 
 

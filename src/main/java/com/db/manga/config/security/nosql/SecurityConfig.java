@@ -13,6 +13,8 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.provisioning.UserDetailsManager;
 import org.springframework.security.web.SecurityFilterChain;
 
+import static org.springframework.security.config.Customizer.withDefaults;
+
 @Profile("nosql")
 @Configuration
 public class SecurityConfig {
@@ -48,9 +50,13 @@ public class SecurityConfig {
                         .requestMatchers("/user/**").hasAnyRole("CREATOR", "ADMIN")  // Dostęp dla USER i ADMIN
                         .requestMatchers("/reader/**").hasAnyRole("READER", "CREATOR", "ADMIN")
                         .requestMatchers("/public/**").permitAll()      // Publiczny dostęp
+                        .requestMatchers("/").permitAll()
+                        .requestMatchers("/register").permitAll()
                         .anyRequest().authenticated()                   // Wymagane logowanie dla pozostałych endpointów
                 )
-                .formLogin(Customizer.withDefaults())
+                .formLogin(form -> form
+                        .loginPage("/login")
+                        .permitAll())
                 .logout(logout -> logout
                         .logoutUrl("/logout")         // Ścieżka do wylogowania
                         .logoutSuccessUrl("/")        // Przekierowanie po wylogowaniu
