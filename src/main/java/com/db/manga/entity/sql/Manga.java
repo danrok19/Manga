@@ -20,14 +20,14 @@ public class Manga {
     @Column(name = "description")
     private String description;
 
-    @OneToMany(mappedBy = "manga", cascade = CascadeType.REMOVE, orphanRemoval = true)
+    @OneToMany(mappedBy = "manga", cascade = CascadeType.ALL)
     private List<Chapter> chapters;
 
     @ManyToOne(optional = false)
     @JoinColumn(name = "author_id")
     private User autor;
 
-    @OneToMany(mappedBy = "manga", cascade = CascadeType.REMOVE, orphanRemoval = true)
+    @OneToMany(mappedBy = "manga", cascade = CascadeType.REMOVE)
     private List<Subscription> subscriptions;
 
     @ManyToMany(fetch = FetchType.EAGER)
