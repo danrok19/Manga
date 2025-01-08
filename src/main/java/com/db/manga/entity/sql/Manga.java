@@ -20,14 +20,14 @@ public class Manga {
     @Column(name = "description")
     private String description;
 
-    @OneToMany(mappedBy = "manga", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "manga", cascade = CascadeType.REMOVE, orphanRemoval = true)
     private List<Chapter> chapters;
 
     @ManyToOne(optional = false)
     @JoinColumn(name = "author_id")
     private User autor;
 
-    @OneToMany(mappedBy = "manga", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "manga", cascade = CascadeType.REMOVE, orphanRemoval = true)
     private List<Subscription> subscriptions;
 
     @ManyToMany(fetch = FetchType.EAGER)
@@ -38,10 +38,10 @@ public class Manga {
     )
     private List<Genre> genres;
 
-    @OneToMany(mappedBy = "manga")
+    @OneToMany(mappedBy = "manga", cascade = CascadeType.REMOVE)
     private List<MangaRating> mangaRatings;
 
-    @OneToMany(mappedBy = "manga")
+    @OneToMany(mappedBy = "manga", cascade = CascadeType.REMOVE)
     private List<ChapterRating> chapterRatings;
 
     public Manga() {}

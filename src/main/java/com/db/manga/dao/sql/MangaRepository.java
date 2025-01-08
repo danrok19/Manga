@@ -16,7 +16,6 @@ public interface MangaRepository extends JpaRepository<Manga, Long> {
 
     List<Manga> findByAutor(User user);
 
-
     @Modifying
     @Transactional
     @Query(value = """

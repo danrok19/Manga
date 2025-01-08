@@ -16,7 +16,6 @@ public interface ChapterRepository extends JpaRepository<Chapter, Long> {
 
     List<Chapter> findByManga(Manga manga);
 
-    void deleteByManga(Manga manga);
 
     @Modifying
     @Transactional

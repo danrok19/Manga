@@ -16,7 +16,7 @@ public class Genre {
     @Column(name = "name")
     private String name;
 
-    @ManyToMany(cascade = {CascadeType.PERSIST, CascadeType.MERGE, CascadeType.REFRESH, CascadeType.DETACH})
+    @ManyToMany()
     @JoinTable(
             name = "manga_genre",
             joinColumns = @JoinColumn(name = "genre_id"),

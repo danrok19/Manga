@@ -1,6 +1,5 @@
 package com.db.manga.dao.sql;
 
-import com.db.manga.entity.sql.Chapter;
 import com.db.manga.entity.sql.ChapterRating;
 import com.db.manga.entity.sql.Manga;
 import com.db.manga.entity.sql.User;
@@ -17,10 +16,6 @@ import java.util.List;
 public interface ChapterRatingRepository extends JpaRepository<ChapterRating, Long> {
 
     List<ChapterRating> findByMangaAndUser(Manga manga, User user);
-
-    void deleteByManga(Manga manga);
-
-
 
     @Modifying
     @Transactional

@@ -6,6 +6,7 @@ import jdk.swing.interop.SwingInterOpUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
@@ -179,13 +180,7 @@ public class SqlServiceImpl implements SqlService{
         System.out.println("Found manga: " + result);
         Manga manga = result.get();
 
-        chapterRatingRepository.deleteByManga(manga);
-        mangaRatingRepository.deleteByManga(manga);
-        subscriptionRepository.deleteByManga(manga);
-        chapterRepository.deleteByManga(manga);
-
-
-        mangaRepository.deleteById(manga.getId());
+        mangaRepository.delete(manga);
         System.out.println("Successfully deleted manga! HERE");
     }
 
