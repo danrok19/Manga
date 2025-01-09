@@ -36,6 +36,8 @@ public interface ObjSqlService {
 
     Genre findGenreById(long genreId);
 
+    Genre findGenreByName(String name);
+
     void createChapter(String title, int episodeNumber, String publicationDate, String content, Long mangaId);
 
     Chapter findChapterById(Long chapterId);

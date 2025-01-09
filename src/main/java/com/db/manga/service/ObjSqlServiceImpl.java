@@ -571,6 +571,16 @@ public class ObjSqlServiceImpl implements ObjSqlService {
         return genreList;
     }
 
+
+    public Genre findGenreByName(String name){
+        System.out.println("Searching for genre...");
+        Optional<Genre> result = Optional.ofNullable(genreRepository.findByName(name));
+        Genre genre = result.get();
+        System.out.println("Found genre: " + genre);
+
+        return genre;
+    }
+
     public Genre findGenreById(long genreId){
         return genreRepository.findById(genreId).get();
     }
@@ -748,13 +758,59 @@ public class ObjSqlServiceImpl implements ObjSqlService {
         System.out.println("Successfully unsubscribed Manga!");
     }
 
-    @Override
-    public List<Subscription> findAllSubscriptionsByUserId(long userId){
-        System.out.println("Searching for subscriptions...");
-        List<Subscription> result = subscriptionRepository.findByUserId(userId);
-        System.out.println("Found subscriptions: " + result);
 
-        return result;
+    public List<Subscription> findAllSubscriptionsByUserId(long userId) {
+        String sql = """
+        SELECT 
+            s.id AS subscription_id,
+            s.subscription_date AS subscription_date,
+            m.id AS manga_id,
+            m.manga AS manga_data
+        FROM 
+            subscription s
+        LEFT JOIN 
+            manga m ON s.manga_id = m.id
+        WHERE 
+            s.user_id = ?;
+    """;
+
+        List<Subscription> subscriptions = new ArrayList<>();
+
+        try (Connection conn = dataSource.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+
+            stmt.setLong(1, userId);
+            ResultSet rs = stmt.executeQuery();
+
+            while (rs.next()) {
+                // Mapowanie subskrypcji
+                long subscriptionId = rs.getLong("subscription_id");
+                String subscriptionDate = rs.getString("subscription_date");
+
+                Subscription subscription = new Subscription();
+                subscription.setId(subscriptionId);
+                subscription.setSubscriptionDate(subscriptionDate);
+
+                // Mapowanie mangi
+                long mangaId = rs.getLong("manga_id");
+                String mangaData = rs.getString("manga_data");
+                mangaData = mangaData.replace("(", "").replace(")", "");
+                String[] mangaParts = mangaData.split(",");
+
+                Manga manga = new Manga();
+                manga.setId(mangaId);
+                manga.setTitle(mangaParts[0].trim());
+                manga.setDescription(String.join(",", Arrays.copyOfRange(mangaParts, 1, mangaParts.length)).trim().replace("\"", ""));
+                subscription.setManga(manga);
+
+                subscriptions.add(subscription);
+            }
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        return subscriptions;
     }
 
     public void addMangaRating(long mangaId, long userId, int rating, String date){

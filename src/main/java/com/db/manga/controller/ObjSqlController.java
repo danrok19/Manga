@@ -125,6 +125,130 @@ public class ObjSqlController {
         return "chapters";
     }
 
+    @GetMapping("/user/manga/{id}/chapters/form")
+    public String getFormChapter(@PathVariable String id, Model model, @AuthenticationPrincipal CustomUserDetails auth){
+        String username = auth.getUsername();
+
+        model.addAttribute("username", username);
+        Manga manga = theService.getMangaById(Long.parseLong(id));
+        model.addAttribute("manga", manga);
+
+        return "chapter-form";
+    }
+
+    @PostMapping("/user/manga/{id}/chapters/save")
+    public String addChapter(@PathVariable String id,
+                             @RequestParam String title,
+                             @RequestParam int episodeNumber,
+                             @RequestParam String content,
+                             @AuthenticationPrincipal CustomUserDetails auth,
+                             Model model){
+        String username = auth.getUsername();
+
+        model.addAttribute("username", username);
+
+        Manga manga = theService.getMangaById(Long.parseLong(id));
+
+        if(auth.getId().equals(String.valueOf(manga.getAutor().getId()))){
+            theService.createChapter(title, episodeNumber, String.valueOf(new Date()), content, manga.getId());
+        }
+
+        return "redirect:/";
+    }
+
+    @GetMapping("/user/manga/form")
+    public String getFormManga(Model model, @AuthenticationPrincipal CustomUserDetails auth){
+        String username = auth.getUsername();
+
+        model.addAttribute("username", username);
+        List<Genre> genres = theService.findAllGenres();
+
+        model.addAttribute("genres", genres);
+        return "manga-form";
+    }
+
+    @PostMapping("/user/manga/form/save")
+    public String addManga(@RequestParam String title,
+                           @RequestParam String description,
+                           @RequestParam List<String> genres,
+                           @AuthenticationPrincipal CustomUserDetails auth,
+                           Model model){
+        String username = auth.getUsername();
+
+        List<Genre> genreList = new ArrayList<>();
+        for(String genre : genres){
+            genreList.add(theService.findGenreByName(genre));
+        }
+
+        model.addAttribute("username", username);
+        System.out.println("Start...");
+        theService.createManga(title, description, Long.parseLong(auth.getId()), genreList);
+
+        return "redirect:/";
+    }
+
+    @GetMapping("/public/chapter/{id}")
+    public String viewChapter(@PathVariable String id, Model model, @AuthenticationPrincipal CustomUserDetails auth) {
+        String username = auth.getUsername();
+
+        model.addAttribute("username", username);
+        Chapter chapter = theService.findChapterById(Long.parseLong(id));
+
+        if (chapter == null) {
+            throw new RuntimeException("Chapter not found with ID: " + id);
+        }
+
+        model.addAttribute("chapter", chapter);
+        return "chapter"; // Szablon "chapter.html"
+    }
+
+    @PostMapping("/reader/manga/{id}/rate")
+    public String rateManga(@PathVariable String id, @RequestParam int rating, @AuthenticationPrincipal CustomUserDetails auth) {
+        System.out.println("Rating for manga " + id + ": " + rating);
+        theService.addMangaRating(Long.parseLong(id), Long.parseLong(auth.getId()), rating, String.valueOf(new Date()));
+
+        return "redirect:/"; // Przekierowanie na stronę główną
+    }
+
+    @PostMapping("/reader/manga/{mangaid}/chapter/{chapterid}/rate")
+    public String rateChapter(@PathVariable String mangaid, @PathVariable String chapterid, @RequestParam int rating, @AuthenticationPrincipal CustomUserDetails auth, Model model){
+        String username = auth.getUsername();
+
+        model.addAttribute("username", username);
+        theService.addChapterRating(Long.parseLong(chapterid), Long.parseLong(mangaid), Long.parseLong(auth.getId()), rating, String.valueOf(new Date()));
+        return "redirect:/";
+    }
+
+
+    @GetMapping("/reader/manga/{id}/subscribe")
+    public String subscribeManga(@PathVariable String id, @AuthenticationPrincipal CustomUserDetails auth){
+        theService.subscribeManga(String.valueOf(new Date()), Long.parseLong(id), Long.parseLong(auth.getId()));
+
+        return "redirect:/";
+    }
+
+    @GetMapping("/reader/manga/{id}/unsubscribe")
+    public String unSubscribeManga(@PathVariable String id, @AuthenticationPrincipal CustomUserDetails auth){
+        theService.unsubscribeManga(Long.parseLong(id));
+
+        return "redirect:/";
+    }
+
+//    @GetMapping("/user/manga/{mangaid}/chapter/{chapterid}/delete")
+//    public String deleteChapter(@PathVariable String mangaid, @PathVariable String chapterid){
+//
+//        theService.deleteChapter(Long.parseLong(chapterid));
+//
+//        return "redirect:/";
+//    }
+//
+//    @GetMapping("/user/manga/{id}/delete")
+//    public String deleteManga(@PathVariable String id){
+//
+//        theService.deleteManga(Long.parseLong(id));
+//
+//        return "redirect:/";
+//    }
 
     @GetMapping("/register")
     public String registerPage(Model model){
