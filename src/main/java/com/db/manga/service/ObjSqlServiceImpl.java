@@ -12,10 +12,7 @@ import org.springframework.stereotype.Service;
 
 import javax.sql.DataSource;
 import java.sql.*;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 @Service
 @Profile("objsql")
@@ -43,6 +40,69 @@ public class ObjSqlServiceImpl implements ObjSqlService {
         this.chapterRatingRepository = chapterRatingRepository;
     }
 
+    public User getUserByUsername(String username) {
+        String sql = """
+        SELECT 
+            u.id, 
+            u.user_data::TEXT, 
+            json_agg(json_build_object('id', r.id, 'roleDescription', r.role_description)) AS roles
+        FROM 
+            "user" u
+        LEFT JOIN 
+            user_role ur ON u.id = ur.user_id
+        LEFT JOIN 
+            role r ON ur.role_id = r.id
+        WHERE 
+            u.user_data::TEXT LIKE ?
+        GROUP BY 
+            u.id, u.user_data;
+    """;
+
+        try (Connection conn = dataSource.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+
+            stmt.setString(1, "%" + username + "%"); // Dopasowanie username jako tekst
+            ResultSet rs = stmt.executeQuery();
+
+            if (rs.next()) {
+                // Mapowanie użytkownika
+                long userId = rs.getLong("id");
+                String userData = rs.getString("user_data");
+
+                userData = userData.replace("(", "").replace(")", "");
+
+                // Zakładając, że user_data jest w formacie rozdzielonym przecinkami
+                String[] parts = userData.split(",");
+
+                User user = new User();
+                user.setId(userId);
+                user.setUsername(parts[0].trim());
+                user.setPassword(parts[1].trim());
+                user.setEmail(parts[2].trim());
+                user.setSignupDate(parts[3].trim());
+
+                // Mapowanie ról z JSON
+                String rolesJson = rs.getString("roles");
+                if (rolesJson != null) {
+                    ObjectMapper objectMapper = new ObjectMapper();
+                    List<Role> roles = objectMapper.readValue(rolesJson, new TypeReference<List<Role>>() {});
+                    user.setRoles(roles);
+                }
+
+                return user;
+            } else {
+                return null; // Brak użytkownika
+            }
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return null; // Obsługa błędów
+        } catch (JsonMappingException e) {
+            throw new RuntimeException(e);
+        } catch (JsonProcessingException e) {
+            throw new RuntimeException(e);
+        }
+    }
 
     @Override
     public User getUserById(long id) {
@@ -188,6 +248,16 @@ public class ObjSqlServiceImpl implements ObjSqlService {
     }
 
 
+    public Role findRoleByRoleDescription(String roleDescription){
+        System.out.println("Searching for role...");
+        Optional<Role> result = Optional.ofNullable(roleRepository.findByRoleDescription(roleDescription));
+        Role role = result.get();
+        System.out.println("Found role: " + role);
+
+        return role;
+    }
+
+
     public void createManga(String title, String description, long authorId, List<Genre> genres){
         System.out.println("Creating Manga...");
         Manga manga = new Manga(title, description);
@@ -324,6 +394,166 @@ public class ObjSqlServiceImpl implements ObjSqlService {
     }
 
 
+    @Override
+    public List<Manga> getAllMangas() {
+        String sql = """
+        SELECT 
+            m.id, 
+            m.manga, 
+            m.author_id,
+            json_agg(json_build_object('id', g.id, 'name', g.name)) AS genres,
+            u.user_data AS author_data
+        FROM 
+            "manga" m
+        LEFT JOIN 
+            manga_genre mg ON m.id = mg.manga_id
+        LEFT JOIN 
+            genre g ON mg.genre_id = g.id
+        LEFT JOIN
+            "user" u ON m.author_id = u.id
+        GROUP BY 
+            m.id, m.manga, m.author_id, u.user_data;
+    """;
+
+        List<Manga> mangas = new ArrayList<>();
+
+        try (Connection conn = dataSource.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql);
+             ResultSet rs = stmt.executeQuery()) {
+
+            while (rs.next()) {
+                // Mapowanie manga
+                long mangaId = rs.getLong("id");
+                String mangaData = rs.getString("manga");
+                long authorId = rs.getLong("author_id");
+
+                mangaData = mangaData.replace("(", "").replace(")", "");
+                String[] parts = mangaData.split(",");
+
+                Manga manga = new Manga();
+                manga.setId(mangaId);
+                manga.setTitle(parts[0].trim().replace("\"", ""));
+                manga.setDescription(String.join(",", Arrays.copyOfRange(parts, 1, parts.length)).trim().replace("\"", ""));
+
+                // Mapowanie autora
+                String authorData = rs.getString("author_data");
+                if (authorData != null) {
+                    authorData = authorData.replace("(", "").replace(")", "");
+                    String[] authorParts = authorData.split(",");
+
+                    User author = new User();
+                    author.setId(authorId);
+                    author.setUsername(authorParts[0].trim());
+                    author.setPassword(authorParts[1].trim());
+                    author.setEmail(authorParts[2].trim());
+                    author.setSignupDate(authorParts[3].trim());
+                    manga.setAutor(author);
+                }
+
+                // Mapowanie genre z JSON
+                String genresJson = rs.getString("genres");
+                if (genresJson != null) {
+                    ObjectMapper objectMapper = new ObjectMapper();
+                    List<Genre> genres = objectMapper.readValue(genresJson, new TypeReference<List<Genre>>() {});
+                    manga.setGenres(genres);
+                }
+
+                mangas.add(manga);
+            }
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        } catch (JsonMappingException e) {
+            throw new RuntimeException(e);
+        } catch (JsonProcessingException e) {
+            throw new RuntimeException(e);
+        }
+
+        return mangas;
+    }
+
+    public List<Manga> getMangaByUserId(long userId) {
+        String sql = """
+        SELECT 
+            m.id, 
+            m.manga, 
+            m.author_id,
+            json_agg(json_build_object('id', g.id, 'name', g.name)) AS genres,
+            u.user_data AS author_data
+        FROM 
+            "manga" m
+        LEFT JOIN 
+            manga_genre mg ON m.id = mg.manga_id
+        LEFT JOIN 
+            genre g ON mg.genre_id = g.id
+        LEFT JOIN
+            "user" u ON m.author_id = u.id
+        WHERE 
+            m.author_id = ?
+        GROUP BY 
+            m.id, m.manga, m.author_id, u.user_data;
+    """;
+
+        List<Manga> mangas = new ArrayList<>();
+
+        try (Connection conn = dataSource.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+
+            stmt.setLong(1, userId);
+            ResultSet rs = stmt.executeQuery();
+
+            while (rs.next()) {
+                // Mapowanie manga
+                long mangaId = rs.getLong("id");
+                String mangaData = rs.getString("manga");
+                long authorId = rs.getLong("author_id");
+
+                mangaData = mangaData.replace("(", "").replace(")", "");
+                String[] parts = mangaData.split(",");
+
+                Manga manga = new Manga();
+                manga.setId(mangaId);
+                manga.setTitle(parts[0].trim().replace("\"", ""));
+                manga.setDescription(String.join(",", Arrays.copyOfRange(parts, 1, parts.length)).trim().replace("\"", ""));
+
+                // Mapowanie autora
+                String authorData = rs.getString("author_data");
+                if (authorData != null) {
+                    authorData = authorData.replace("(", "").replace(")", "");
+                    String[] authorParts = authorData.split(",");
+
+                    User author = new User();
+                    author.setId(authorId);
+                    author.setUsername(authorParts[0].trim());
+                    author.setPassword(authorParts[1].trim());
+                    author.setEmail(authorParts[2].trim());
+                    author.setSignupDate(authorParts[3].trim());
+                    manga.setAutor(author);
+                }
+
+                // Mapowanie genre z JSON
+                String genresJson = rs.getString("genres");
+                if (genresJson != null) {
+                    ObjectMapper objectMapper = new ObjectMapper();
+                    List<Genre> genres = objectMapper.readValue(genresJson, new TypeReference<List<Genre>>() {});
+                    manga.setGenres(genres);
+                }
+
+                mangas.add(manga);
+            }
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        } catch (JsonMappingException e) {
+            throw new RuntimeException(e);
+        } catch (JsonProcessingException e) {
+            throw new RuntimeException(e);
+        }
+
+        return mangas;
+    }
+
+
     public void createGenre(String name){
         System.out.println("Creating Genre...");
         Genre genre = new Genre(name);
@@ -429,6 +659,69 @@ public class ObjSqlServiceImpl implements ObjSqlService {
         }
     }
 
+
+
+    public List<Chapter> getChaptersByMangaId(long mangaId) {
+        String sql = """
+        SELECT
+            c.id,
+            c.chapter,
+            c.manga_id,
+            m.manga AS manga_data
+        FROM chapter c
+        LEFT JOIN
+            manga m ON m.id = c.manga_id
+        WHERE c.manga_id = ?
+        GROUP BY
+            c.id, c.chapter, c.manga_id, m.manga;
+    """;
+
+        try (Connection conn = dataSource.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+
+            stmt.setLong(1, mangaId);
+            ResultSet rs = stmt.executeQuery();
+
+            List<Chapter> chapters = new ArrayList<>();
+
+            while (rs.next()) {
+                // Mapowanie chapter
+                long chapterId = rs.getLong("id");
+                String chapterData = rs.getString("chapter");
+                Long fetchedMangaId = rs.getLong("manga_id");
+                String mangaData = rs.getString("manga_data");
+
+                chapterData = chapterData.replace("(", "").replace(")", "");
+
+                String[] parts = chapterData.split(",");
+
+                Chapter chapter = new Chapter();
+                chapter.setId(chapterId);
+                chapter.setTitle(parts[0].trim());
+                chapter.setEpisodeNumber(Integer.parseInt(parts[1].trim()));
+                chapter.setPublicationDate(parts[2].trim());
+                chapter.setContent(String.join(",", Arrays.copyOfRange(parts, 3, parts.length)).trim().replace("\"", ""));
+
+                // Mapowanie mangi
+                String[] partsManga = mangaData.split(",");
+                Manga manga = new Manga();
+                manga.setId(fetchedMangaId);
+                manga.setTitle(partsManga[0].trim());
+                manga.setDescription(partsManga[1].trim());
+
+                chapter.setManga(manga);
+
+                chapters.add(chapter);
+            }
+
+            return chapters;
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return Collections.emptyList(); // Obsługa błędów
+        }
+    }
+
     public void subscribeManga(String subscriptionDate, long mangaId, long userId){
         System.out.println("Subscribing Manga...");
         Subscription subscription = new Subscription(subscriptionDate);
@@ -453,6 +746,15 @@ public class ObjSqlServiceImpl implements ObjSqlService {
         subscriptionRepository.findById(id);
         subscriptionRepository.deleteById(id);
         System.out.println("Successfully unsubscribed Manga!");
+    }
+
+    @Override
+    public List<Subscription> findAllSubscriptionsByUserId(long userId){
+        System.out.println("Searching for subscriptions...");
+        List<Subscription> result = subscriptionRepository.findByUserId(userId);
+        System.out.println("Found subscriptions: " + result);
+
+        return result;
     }
 
     public void addMangaRating(long mangaId, long userId, int rating, String date){
@@ -557,6 +859,82 @@ public class ObjSqlServiceImpl implements ObjSqlService {
         }
     }
 
+    @Override
+    public List<MangaRating> findAllMangaRatingByUserId(String _userId) {
+        long userId = Long.parseLong(_userId);
+        String sql = """
+        SELECT 
+            mr.id AS rating_id, 
+            mr.rating, 
+            mr.user_id,
+            mr.manga_id,
+            u.user_data AS user_data,
+            m.manga AS manga_data
+        FROM 
+            "manga_rating" mr
+        JOIN 
+            "user" u ON mr.user_id = u.id
+        JOIN 
+            "manga" m ON mr.manga_id = m.id
+        WHERE 
+            mr.user_id = ?
+    """;
+
+        List<MangaRating> mangaRatings = new ArrayList<>();
+
+        try (Connection conn = dataSource.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+
+            stmt.setLong(1, userId);
+            ResultSet rs = stmt.executeQuery();
+
+            while (rs.next()) {
+                MangaRating mangaRating = new MangaRating();
+
+                // Mapowanie manga_rating
+                long mangaRatingId = rs.getLong("rating_id");
+                String mangaRatingData = rs.getString("rating");
+                long mangaId = rs.getLong("manga_id");
+
+                mangaRatingData = mangaRatingData.replace("(", "").replace(")", "");
+                String[] parts = mangaRatingData.split(",");
+
+                mangaRating.setId(mangaRatingId);
+                mangaRating.setRating(Integer.parseInt(parts[0].trim()));
+                mangaRating.setDate(parts[1].trim());
+
+                // Mapowanie user
+                String userData = rs.getString("user_data");
+                userData = userData.replace("(", "").replace(")", "");
+                String[] userParts = userData.split(",");
+                User user = new User();
+                user.setId(userId);
+                user.setUsername(userParts[0].trim());
+                user.setPassword(userParts[1].trim());
+                user.setEmail(userParts[2].trim());
+                user.setSignupDate(userParts[3].trim());
+                mangaRating.setUser(user);
+
+                // Mapowanie manga
+                String mangaData = rs.getString("manga_data");
+                mangaData = mangaData.replace("(", "").replace(")", "");
+                String[] mangaParts = mangaData.split(",");
+                Manga manga = new Manga();
+                manga.setId(mangaId);
+                manga.setTitle(mangaParts[0].trim());
+                manga.setDescription(String.join(",", Arrays.copyOfRange(mangaParts, 1, mangaParts.length)).trim().replace("\"", ""));
+                mangaRating.setManga(manga);
+
+                mangaRatings.add(mangaRating);
+            }
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        return mangaRatings;
+    }
+
     public void changeMangaRating(long id, int rating, String date){
         System.out.println("Changing Manga rating...");
 
@@ -573,6 +951,101 @@ public class ObjSqlServiceImpl implements ObjSqlService {
                 mangaRating.getUser().getId(),
                 mangaRating.getManga().getId());
         System.out.println("Successfully changed Manga rating!");
+    }
+
+
+    public List<ChapterRating> findAllChapterRatingByMangaIdAndByUserId(long mangaId, long userId) {
+        String sql = """
+        SELECT
+            cr.id AS rating_id,
+            cr.rating,
+            cr.user_id,
+            cr.chapter_id,
+            cr.manga_id,
+            u.user_data AS user_data,
+            c.chapter AS chapter_data,
+            m.manga AS manga_data
+        FROM 
+            "chapter_rating" cr
+        LEFT JOIN
+            "user" u ON cr.user_id = u.id
+        LEFT JOIN
+            "chapter" c ON cr.chapter_id = c.id
+        LEFT JOIN
+            "manga" m ON cr.manga_id = m.id
+        WHERE cr.manga_id = ? AND cr.user_id = ?;
+    """;
+
+        try (Connection conn = dataSource.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+
+            stmt.setLong(1, mangaId);
+            stmt.setLong(2, userId);
+
+            ResultSet rs = stmt.executeQuery();
+
+            List<ChapterRating> chapterRatings = new ArrayList<>();
+
+            while (rs.next()) {
+                // Mapowanie ChapterRating
+                long chapterRatingId = rs.getLong("rating_id");
+                String chapterRatingData = rs.getString("rating");
+                long chapterId = rs.getLong("chapter_id");
+
+                chapterRatingData = chapterRatingData.replace("(", "").replace(")", "");
+                String[] parts = chapterRatingData.split(",");
+
+                ChapterRating chapterRating = new ChapterRating();
+                chapterRating.setId(chapterRatingId);
+                chapterRating.setRating(Integer.parseInt(parts[0].trim()));
+                chapterRating.setDate(parts[1].trim());
+
+                // Mapowanie User
+                String userData = rs.getString("user_data");
+                userData = userData.replace("(", "").replace(")", "");
+                String[] userParts = userData.split(",");
+
+                User user = new User();
+                user.setId(userId);
+                user.setUsername(userParts[0].trim());
+                user.setPassword(userParts[1].trim());
+                user.setEmail(userParts[2].trim());
+                user.setSignupDate(userParts[3].trim());
+                chapterRating.setUser(user);
+
+                // Mapowanie Chapter
+                String chapterData = rs.getString("chapter_data");
+                chapterData = chapterData.replace("(", "").replace(")", "");
+                String[] chapterParts = chapterData.split(",");
+
+                Chapter chapter = new Chapter();
+                chapter.setId(chapterId);
+                chapter.setTitle(chapterParts[0].trim());
+                chapter.setEpisodeNumber(Integer.parseInt(chapterParts[1].trim()));
+                chapter.setPublicationDate(chapterParts[2].trim());
+                chapter.setContent(String.join(",", Arrays.copyOfRange(chapterParts, 3, chapterParts.length)).trim().replace("\"", ""));
+                chapterRating.setChapter(chapter);
+
+                // Mapowanie Manga
+                String mangaData = rs.getString("manga_data");
+                mangaData = mangaData.replace("(", "").replace(")", "");
+                String[] mangaParts = mangaData.split(",");
+
+                Manga manga = new Manga();
+                manga.setId(mangaId);
+                manga.setTitle(mangaParts[0].trim());
+                manga.setDescription(String.join(",", Arrays.copyOfRange(mangaParts, 1, mangaParts.length)).trim().replace("\"", ""));
+                chapterRating.setManga(manga);
+
+                chapterRatings.add(chapterRating);
+            }
+
+            return chapterRatings;
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return Collections.emptyList(); // Obsługa błędów
+        }
     }
 
 
