@@ -42,21 +42,21 @@ public class ObjSqlServiceImpl implements ObjSqlService {
 
     public User getUserByUsername(String username) {
         String sql = """
-        SELECT 
-            u.id, 
-            u.user_data::TEXT, 
-            json_agg(json_build_object('id', r.id, 'roleDescription', r.role_description)) AS roles
-        FROM 
-            "user" u
-        LEFT JOIN 
-            user_role ur ON u.id = ur.user_id
-        LEFT JOIN 
-            role r ON ur.role_id = r.id
-        WHERE 
-            u.user_data::TEXT LIKE ?
-        GROUP BY 
-            u.id, u.user_data;
-    """;
+                    SELECT 
+                        u.id, 
+                        u.user_data::TEXT, 
+                        json_agg(json_build_object('id', r.id, 'roleDescription', r.role_description)) AS roles
+                    FROM 
+                        "user" u
+                    LEFT JOIN 
+                        user_role ur ON u.id = ur.user_id
+                    LEFT JOIN 
+                        role r ON ur.role_id = r.id
+                    WHERE 
+                        u.user_data::TEXT LIKE ?
+                    GROUP BY 
+                        u.id, u.user_data;
+                """;
 
         try (Connection conn = dataSource.getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
@@ -177,7 +177,6 @@ public class ObjSqlServiceImpl implements ObjSqlService {
     @Override
     public void createUser(String userName, String password, String email, String signUpDate, List<Role> roles) {
         System.out.println("Creating User...");
-
 
         System.out.println("Creating User class...");
         User user = new User(userName, password, email,  signUpDate);
@@ -730,6 +729,28 @@ public class ObjSqlServiceImpl implements ObjSqlService {
             e.printStackTrace();
             return Collections.emptyList(); // Obsługa błędów
         }
+    }
+
+
+    public void deleteChapter(long chapterId){
+        System.out.println("Deleting chapter...");
+        Optional<Chapter> result = chapterRepository.findById(chapterId);
+        Chapter chapter = result.get();
+        System.out.println("Found chapter: " + chapter);
+
+        chapterRepository.deleteById(chapter.getId());
+        System.out.println("Successfully deleted chapter!");
+    }
+
+    @Override
+    public void deleteManga(long mangaId) {
+        System.out.println("Deleting manga...");
+        Optional<Manga> result = Optional.ofNullable(getMangaById(mangaId));
+        System.out.println("Found manga: " + result);
+        Manga manga = result.get();
+
+        mangaRepository.deleteMangaById(manga.getId());
+        System.out.println("Successfully deleted manga! HERE");
     }
 
     public void subscribeManga(String subscriptionDate, long mangaId, long userId){

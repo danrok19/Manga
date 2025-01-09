@@ -189,8 +189,6 @@ public class SqlServiceImpl implements SqlService{
         Chapter chapter = result.get();
         System.out.println("Found chapter: " + chapter);
 
-        System.out.println("Searching for manga...");
-
         chapterRepository.deleteById(chapter.getId());
         System.out.println("Successfully deleted chapter!");
     }

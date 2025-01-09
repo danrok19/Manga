@@ -234,21 +234,21 @@ public class ObjSqlController {
         return "redirect:/";
     }
 
-//    @GetMapping("/user/manga/{mangaid}/chapter/{chapterid}/delete")
-//    public String deleteChapter(@PathVariable String mangaid, @PathVariable String chapterid){
-//
-//        theService.deleteChapter(Long.parseLong(chapterid));
-//
-//        return "redirect:/";
-//    }
-//
-//    @GetMapping("/user/manga/{id}/delete")
-//    public String deleteManga(@PathVariable String id){
-//
-//        theService.deleteManga(Long.parseLong(id));
-//
-//        return "redirect:/";
-//    }
+    @GetMapping("/user/manga/{mangaid}/chapter/{chapterid}/delete")
+    public String deleteChapter(@PathVariable String mangaid, @PathVariable String chapterid){
+
+        theService.deleteChapter(Long.parseLong(chapterid));
+
+        return "redirect:/";
+    }
+
+    @GetMapping("/user/manga/{id}/delete")
+    public String deleteManga(@PathVariable String id){
+
+        theService.deleteManga(Long.parseLong(id));
+
+        return "redirect:/";
+    }
 
     @GetMapping("/register")
     public String registerPage(Model model){

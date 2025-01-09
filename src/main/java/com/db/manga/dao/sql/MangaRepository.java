@@ -31,4 +31,11 @@ public interface MangaRepository extends JpaRepository<Manga, Long> {
                             @Param("description") String description,
                             @Param("authorId") long authorId,
                             @Param("genreIds") Long[] genreIds);
+
+
+
+    @Modifying
+    @Transactional
+    @Query("DELETE FROM Manga m WHERE m.id = :mangaId")
+    void deleteMangaById(@Param("mangaId") long mangaId);
 }

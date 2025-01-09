@@ -44,6 +44,10 @@ public interface ObjSqlService {
 
     List<Chapter> getChaptersByMangaId(long mangaId);
 
+    void deleteChapter(long chapterId);
+
+    void deleteManga(long mangaId);
+
     void subscribeManga(String subscriptionDate, long mangaId, long userId);
 
     void unsubscribeManga(long id);
