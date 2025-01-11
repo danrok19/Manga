@@ -164,12 +164,34 @@ public class SqlServiceImpl implements SqlService{
         Manga manga = result.get();
         System.out.println("Found manga: " + manga);
 
-        manga.getGenres().clear();
-        manga.getSubscriptions().clear();
-        manga.getChapters().clear();
-
         return manga;
     }
+
+
+    @Override
+    public List<Manga> getMangaByTitle(String title){
+        System.out.println("Searching for mangas...");
+        List<Manga> mangas = mangaRepository.findByTitle(title);
+
+        return mangas;
+    }
+
+    @Override
+    public List<Manga> getMangaByGenre(Genre genre){
+        System.out.println("Searching for mangas...");
+        List<Manga> mangas = mangaRepository.findByGenreId(genre.getId());
+
+        return mangas;
+    }
+
+    @Override
+    public List<Manga> getMangaByTitleAndGenre(String title, Genre genre){
+        System.out.println("Searching for mangas...");
+        List<Manga> mangas = mangaRepository.findByTitleAndGenres_Id(title, genre.getId());
+
+        return mangas;
+    }
+
 
     @Override
     public void deleteManga(Long mangaId) {
@@ -446,4 +468,5 @@ public class SqlServiceImpl implements SqlService{
         chapterRatingRepository.save(chapterRating);
         System.out.println("Successfully changed chapter rating!");
     }
+
 }

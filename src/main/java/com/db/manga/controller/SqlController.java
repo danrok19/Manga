@@ -283,4 +283,62 @@ public class SqlController {
 
         return "/";
     }
+
+    @GetMapping("/public/search")
+    public String searchPage(Model model, @AuthenticationPrincipal CustomUserDetails auth){
+        String username = auth.getUsername();
+        model.addAttribute("username", username);
+
+        List<Genre> genres = theService.findAllGenres();
+        model.addAttribute("genres", genres);
+        model.addAttribute("mangas", "");
+
+
+        return "search";
+    }
+
+    @GetMapping("/public/search/")
+    public String searchManga(Model model, @AuthenticationPrincipal CustomUserDetails auth,
+                              @RequestParam String title,
+                              @RequestParam String genre){
+
+        String username = auth.getUsername();
+        model.addAttribute("username", username);
+
+        List<Genre> genres = theService.findAllGenres();
+        model.addAttribute("genres", genres);
+
+        Genre genreResult = null;
+        if(genre != "" && title != ""){
+            genreResult = theService.findGenreByName(genre);
+            model.addAttribute("mangaList", theService.getMangaByTitleAndGenre(title, genreResult));
+        } else if (genre != "" && title == ""){
+            genreResult = theService.findGenreByName(genre);
+            model.addAttribute("mangaList", theService.getMangaByGenre(genreResult));
+        } else if(genre == "" && title != ""){
+            model.addAttribute("mangaList", theService.getMangaByTitle(title));
+        }else{
+            model.addAttribute("mangaList", theService.getAllMangas());
+        }
+
+
+        List<MangaRating> ratingList = theService.findAllMangaRatingByUserId(auth.getId());
+
+        Long longId = Long.parseLong(auth.getId());
+        List<Subscription> subscriptionList = theService.findAllSubscriptionsByUserId(longId);
+
+        // creating a map of {mangaId = ratingValue}
+        Map<String, Integer> ratingsMap = ratingList.stream()
+                .collect(Collectors.toMap(rating -> String.valueOf(rating.getManga().getId()), MangaRating::getRating));
+
+        Map<String, String> subscriptionsMap = subscriptionList.stream()
+                .collect(Collectors.toMap(subscription -> String.valueOf(subscription.getManga().getId()),
+                        subscription -> String.valueOf(subscription.getId())));
+
+        model.addAttribute("sql", true);
+        model.addAttribute("ratingsMap", ratingsMap);
+        model.addAttribute("subscriptionsMap", subscriptionsMap);
+
+        return "search";
+    }
 }

@@ -28,6 +28,12 @@ public interface SqlService {
 
     List<Manga> getMangaByUserId(long userId);
 
+    List<Manga> getMangaByTitle(String title);
+
+    List<Manga> getMangaByGenre(Genre genre);
+
+    List<Manga> getMangaByTitleAndGenre(String title, Genre genre);
+
     void deleteManga(Long mangaId);
 
     void deleteChapter(Long chapterId);

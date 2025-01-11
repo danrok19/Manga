@@ -19,7 +19,9 @@
                 <li class="nav-item">
                     <a class="nav-link active" aria-current="page" th:href="@{/}">Home</a>
                 </li>
-
+                <li class="nav-item">
+                    <a class="nav-link" aria-current="page" th:href="@{/public/search}">Search</a>
+                </li>
                 <li class="nav-item" th:if="${username == null}">
                     <a class="nav-link" th:href="@{/login}">Log In</a>
                 </li>

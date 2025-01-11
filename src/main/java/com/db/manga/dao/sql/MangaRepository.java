@@ -1,5 +1,6 @@
 package com.db.manga.dao.sql;
 
+import com.db.manga.entity.sql.Genre;
 import com.db.manga.entity.sql.Manga;
 import com.db.manga.entity.sql.User;
 import org.springframework.context.annotation.Profile;
@@ -15,6 +16,13 @@ import java.util.List;
 public interface MangaRepository extends JpaRepository<Manga, Long> {
 
     List<Manga> findByAutor(User user);
+
+    @Query("SELECT m FROM Manga m JOIN m.genres g WHERE g.id = :genreId")
+    List<Manga> findByGenreId(@Param("genreId") Long genreId);
+
+    List<Manga> findByTitleAndGenres_Id(String title, Long genreId);
+
+    List<Manga> findByTitle(String title);
 
     @Modifying
     @Transactional
