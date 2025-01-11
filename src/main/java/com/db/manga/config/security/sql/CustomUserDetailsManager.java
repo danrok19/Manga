@@ -6,7 +6,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.provisioning.UserDetailsManager;
 
-@Profile("sql")
+@Profile({"sql", "obj"})
 public class CustomUserDetailsManager implements UserDetailsManager {
 
     private final CustomUserDetailsService customUserDetailsService;

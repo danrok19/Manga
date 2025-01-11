@@ -10,11 +10,14 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
-@Profile({"sql", "objsql"})
+@Profile({"sql", "objsql", "obj"})
 public interface MangaRatingRepository extends JpaRepository<MangaRating, Long> {
 
 
     List<MangaRating> findByUserId(long userId);
+
+    @Transactional
+    void deleteByMangaId(long id);
 
     @Modifying
     @Transactional

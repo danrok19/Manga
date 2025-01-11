@@ -11,7 +11,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
 
-@Profile("sql")
+@Profile({"sql", "obj"})
 public class CustomUserDetails implements UserDetails {
 
     private final User user;

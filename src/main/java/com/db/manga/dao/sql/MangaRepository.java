@@ -11,7 +11,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
-@Profile({"sql", "objsql"})
+@Profile({"sql", "objsql", "obj"})
 public interface MangaRepository extends JpaRepository<Manga, Long> {
 
     List<Manga> findByAutor(User user);

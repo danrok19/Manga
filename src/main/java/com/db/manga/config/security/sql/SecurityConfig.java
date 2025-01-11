@@ -14,7 +14,7 @@ import org.springframework.security.provisioning.UserDetailsManager;
 import org.springframework.security.web.SecurityFilterChain;
 
 @Configuration
-@Profile("sql")
+@Profile({"sql", "obj"})
 public class SecurityConfig {
 
     private final CustomUserDetailsService customUserDetailsService;

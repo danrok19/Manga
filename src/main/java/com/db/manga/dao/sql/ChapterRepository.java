@@ -11,10 +11,13 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
-@Profile({"sql", "objsql"})
+@Profile({"sql", "objsql", "obj"})
 public interface ChapterRepository extends JpaRepository<Chapter, Long> {
 
     List<Chapter> findByManga(Manga manga);
+
+    @Transactional
+    void deleteByMangaId(Long mangaId);
 
 
     @Modifying
